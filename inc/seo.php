@@ -108,15 +108,100 @@ function tk_generate_meta_title($post = null)
         $title = $post->post_title;
     }
 
-    // Add site name if space allows
-    $full_title = $title . ' | ' . $site_name;
+    $suffix = ' | ' . $site_name;
+    $full_title = $title . $suffix;
 
-    // Truncate to 60 chars if needed
-    if (strlen($full_title) > 60) {
-        $full_title = substr($title, 0, 57) . '...';
+    /*
+     * Keep the brand, shorten the description.
+     *
+     * The previous version truncated to substr($title, 0, 57) whenever the
+     * combined string passed 60 characters, which discarded the site name
+     * outright -- so precisely the longer, more competitive pages lost the
+     * only occurrence of "Trip Kailash" in their title tag, which is the
+     * string a branded search has to match. It also counted bytes rather
+     * than characters, so a cut could land inside a multi-byte glyph.
+     *
+     * Now the suffix is reserved first and the descriptive part is trimmed
+     * to fit around it, on a word boundary.
+     */
+    if (mb_strlen($full_title) > 60) {
+        $available = 60 - mb_strlen($suffix) - 1;
+
+        if ($available >= 20) {
+            $trimmed = mb_substr($title, 0, $available);
+            $last_space = mb_strrpos($trimmed, ' ');
+
+            if ($last_space > 15) {
+                $trimmed = mb_substr($trimmed, 0, $last_space);
+            }
+
+            $full_title = rtrim($trimmed, " ,.;:-") . $suffix;
+        } else {
+            // Site name alone is long enough that nothing sensible fits
+            // beside it; lead with the page and let the brand follow.
+            $full_title = mb_substr($title, 0, 57) . '...';
+        }
     }
 
     return esc_html($full_title);
+}
+
+/**
+ * Resolve the fallback Open Graph image.
+ *
+ * This used to point unconditionally at assets/images/og-default.jpg, which
+ * has never shipped with the theme. Every share of a page without its own
+ * featured image therefore advertised a 404, and Facebook, WhatsApp and X all
+ * rendered the link with no preview image at all.
+ *
+ * Resolves against things that actually exist, in order of preference, and
+ * returns an empty string rather than a broken URL if none do -- an absent
+ * og:image degrades better than one that 404s.
+ *
+ * @return string Absolute image URL, or '' when nothing suitable exists.
+ */
+function tk_get_default_og_image()
+{
+    static $resolved = null;
+
+    if (null !== $resolved) {
+        return $resolved;
+    }
+
+    $candidates = array();
+
+    // 1. An explicit choice, set as an option or via the filter below.
+    $configured = get_option('tk_og_image', '');
+    if ($configured) {
+        $candidates[] = $configured;
+    }
+
+    // 2. The site's custom logo.
+    $logo_id = get_theme_mod('custom_logo');
+    if ($logo_id) {
+        $logo = wp_get_attachment_image_url($logo_id, 'full');
+        if ($logo) {
+            $candidates[] = $logo;
+        }
+    }
+
+    // 3. The site icon, which WordPress guarantees is square and present
+    //    whenever a favicon has been set.
+    $icon = get_site_icon_url(512);
+    if ($icon) {
+        $candidates[] = $icon;
+    }
+
+    $resolved = $candidates ? $candidates[0] : '';
+
+    /**
+     * Filter the fallback Open Graph image URL.
+     *
+     * @param string $resolved Absolute URL, or '' when none is available.
+     */
+    $resolved = apply_filters('tk_default_og_image', $resolved);
+
+    return $resolved;
 }
 
 /**
@@ -187,16 +272,77 @@ function tk_generate_meta_description($post = null)
         if ($post->post_excerpt) {
             $description = $post->post_excerpt;
         } else {
-            $description = wp_strip_all_tags($post->post_content);
+            $description = tk_extract_readable_text($post->post_content);
         }
     }
 
-    // Truncate to 160 chars
-    if (strlen($description) > 160) {
-        $description = substr($description, 0, 157) . '...';
+    $description = trim(preg_replace('/\s+/u', ' ', $description));
+
+    // Never emit an empty or near-empty description; Google will invent one.
+    if (mb_strlen($description) < 30) {
+        $fallback = get_bloginfo('description');
+        $description = $fallback
+            ? $post->post_title . ' - ' . $fallback
+            : $post->post_title . ' - ' . get_bloginfo('name');
+    }
+
+    /*
+     * Truncate on a word boundary using multi-byte functions.
+     *
+     * The previous version used strlen()/substr(), which count bytes rather
+     * than characters. Package titles and body copy on this site contain
+     * Devanagari (for example "ॐ नमः शिवाय"), where a byte-offset cut lands
+     * mid-character and emits a broken glyph into the search snippet.
+     */
+    if (mb_strlen($description) > 160) {
+        $description = mb_substr($description, 0, 157);
+        $last_space = mb_strrpos($description, ' ');
+
+        if ($last_space > 100) {
+            $description = mb_substr($description, 0, $last_space);
+        }
+
+        $description = rtrim($description, " ,.;:-") . '...';
     }
 
     return esc_attr($description);
+}
+
+/**
+ * Extract human-readable text from post content for use in a meta description.
+ *
+ * wp_strip_all_tags() removes the tags but keeps whatever sat between them,
+ * so a page built around a <video> element yields its fallback copy --
+ * "Your browser does not support the video tag." was being served as this
+ * site's homepage meta description, and as its og:description and
+ * twitter:description along with it.
+ *
+ * Elements whose inner text is a fallback or a machine instruction, never
+ * prose, are removed wholesale before the remaining tags are stripped.
+ *
+ * @param string $content Raw post content.
+ * @return string Plain text suitable for a description.
+ */
+function tk_extract_readable_text($content)
+{
+    if (empty($content)) {
+        return '';
+    }
+
+    // Elementor stores layout as shortcodes; render nothing rather than markup.
+    $content = strip_shortcodes($content);
+
+    // Drop these elements and everything inside them.
+    $content = preg_replace(
+        '#<(video|audio|script|style|noscript|iframe|svg|canvas)\b[^>]*>.*?</\1>#is',
+        ' ',
+        $content
+    );
+
+    // Self-closing or unclosed variants of the same.
+    $content = preg_replace('#<(source|track|embed)\b[^>]*/?>#i', ' ', $content);
+
+    return wp_strip_all_tags($content);
 }
 
 /**
@@ -286,14 +432,14 @@ function tk_get_og_tags($post = null)
             }
         } else {
             // Default OG image
-            $og['og:image'] = TRIP_KAILASH_URI . '/assets/images/og-default.jpg';
+            $og['og:image'] = tk_get_default_og_image();
         }
     } else {
         $og['og:type'] = 'website';
         $og['og:title'] = get_bloginfo('name');
         $og['og:description'] = get_bloginfo('description');
         $og['og:url'] = home_url('/');
-        $og['og:image'] = TRIP_KAILASH_URI . '/assets/images/og-default.jpg';
+        $og['og:image'] = tk_get_default_og_image();
     }
 
     return $og;
@@ -351,10 +497,36 @@ function tk_output_seo_meta_tags()
     // Twitter Cards
     tk_output_twitter_cards();
 
-    // Robots meta (allow indexing by default)
-    echo '<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />' . "\n";
+    /*
+     * The robots directive is NOT echoed here.
+     *
+     * WordPress core already prints its own <meta name="robots"> via the
+     * wp_robots filter, so echoing a second one produced two robots tags on
+     * every page. Crawlers combine duplicates by taking the most restrictive
+     * value, which makes the outcome depend on what any plugin adds later.
+     * Contributing to core's single tag through the filter below keeps one
+     * authoritative directive on the page. See tk_filter_robots().
+     */
 }
 add_action('wp_head', 'tk_output_seo_meta_tags', 1);
+
+/**
+ * Contribute this theme's indexing preferences to core's single robots tag.
+ *
+ * @param array $robots Robots directives keyed by name.
+ * @return array Modified directives.
+ */
+function tk_filter_robots($robots)
+{
+    $robots['index'] = true;
+    $robots['follow'] = true;
+    $robots['max-image-preview'] = 'large';
+    $robots['max-snippet'] = -1;
+    $robots['max-video-preview'] = -1;
+
+    return $robots;
+}
+add_filter('wp_robots', 'tk_filter_robots');
 
 /**
  * Filter document title parts for better SEO
