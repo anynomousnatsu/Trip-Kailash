@@ -186,9 +186,19 @@ function trip_kailash_body_classes($classes)
     return $classes;
 }
 add_filter('body_class', 'trip_kailash_body_classes');
-
+/**
+ * Register the theme's CPTs with Elementor.
+ *
+ * Only writes the option when it actually needs to change, and only in
+ * contexts where Elementor reads it (admin, editor, REST). Previously this
+ * ran update_option() on every front-end request.
+ */
 function trip_kailash_enable_elementor_for_cpts()
 {
+    if (!is_admin() && !wp_doing_ajax() && !(defined('REST_REQUEST') && REST_REQUEST)) {
+        return;
+    }
+
     $post_types = array('pilgrimage_package', 'guide', 'lodge');
     $supported = get_option('elementor_cpt_support', array('post', 'page'));
 
@@ -196,9 +206,12 @@ function trip_kailash_enable_elementor_for_cpts()
         $supported = array('post', 'page');
     }
 
-    $supported = array_unique(array_merge($supported, $post_types));
+    // Nothing to do if every CPT is already registered.
+    if (!array_diff($post_types, $supported)) {
+        return;
+    }
 
-    update_option('elementor_cpt_support', $supported);
+    update_option('elementor_cpt_support', array_values(array_unique(array_merge($supported, $post_types))));
 }
 add_action('init', 'trip_kailash_enable_elementor_for_cpts');
 

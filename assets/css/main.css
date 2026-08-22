@@ -1,20 +1,12 @@
 /**
- * Trip Kailash Theme - Main Stylesheet
- * Imports all CSS files in the correct order
+ * Trip Kailash Theme - Main Stylesheet (deprecated)
+ *
+ * This file previously chained every stylesheet together with @import,
+ * which made the browser download them one after another instead of in
+ * parallel and blocked first paint until the whole chain resolved.
+ *
+ * The individual files are now enqueued directly in inc/enqueue.php with
+ * WordPress dependencies preserving cascade order. This file is kept only
+ * so that any hardcoded reference to it does not 404, and is intentionally
+ * empty. It is safe to delete once you have confirmed nothing links to it.
  */
-
-/* 1. Design System Variables */
-@import url('variables.css');
-
-/* 2. Base Styles (Reset, Typography, Body) */
-@import url('base.css');
-
-/* 3. Component Styles (Buttons, Cards, Forms, Icons) */
-@import url('components.css');
-
-/* 4. Layout Components */
-@import url('header.css');
-@import url('footer.css');
-
-/* 5. Elementor Overrides (must be last) */
-@import url('elementor-overrides.css');
