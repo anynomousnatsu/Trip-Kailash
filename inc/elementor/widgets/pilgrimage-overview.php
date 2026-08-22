@@ -154,13 +154,40 @@ class Pilgrimage_Overview extends Widget_Base
                     </div>
                 <?php endif; ?>
 
-                <?php if (!empty($settings['stats'])): ?>
+                <?php
+                /*
+                 * Drop blank repeater rows before deciding whether to render.
+                 *
+                 * !empty($settings['stats']) is true for a repeater holding a
+                 * single row with an empty label and an empty value, which is
+                 * what an untouched default leaves behind. That rendered a
+                 * stat card with a background, padding and no content: the
+                 * empty grey slab under the Tour Overview.
+                 */
+                $stats = array();
+
+                if (!empty($settings['stats']) && is_array($settings['stats'])) {
+                    foreach ($settings['stats'] as $stat) {
+                        $label = isset($stat['label']) ? trim($stat['label']) : '';
+                        $value = isset($stat['value']) ? trim($stat['value']) : '';
+
+                        if ('' !== $label || '' !== $value) {
+                            $stats[] = array('label' => $label, 'value' => $value);
+                        }
+                    }
+                }
+                ?>
+                <?php if (!empty($stats)): ?>
                     <div class="tk-overview-stats-section">
                         <div class="tk-pilgrimage-overview__stats">
-                            <?php foreach ($settings['stats'] as $stat): ?>
+                            <?php foreach ($stats as $stat): ?>
                                 <div class="tk-stat-card">
-                                    <div class="tk-stat-card__label"><?php echo esc_html($stat['label']); ?></div>
-                                    <div class="tk-stat-card__value"><?php echo esc_html($stat['value']); ?></div>
+                                    <?php if ('' !== $stat['label']): ?>
+                                        <div class="tk-stat-card__label"><?php echo esc_html($stat['label']); ?></div>
+                                    <?php endif; ?>
+                                    <?php if ('' !== $stat['value']): ?>
+                                        <div class="tk-stat-card__value"><?php echo esc_html($stat['value']); ?></div>
+                                    <?php endif; ?>
                                 </div>
                             <?php endforeach; ?>
                         </div>
