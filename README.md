@@ -10,7 +10,8 @@ A custom WordPress theme built for Elementor for spiritual pilgrimage travel, fe
 
 ## Installation
 
-1. Upload the `trip-kailash` folder to `/wp-content/themes/`
+1. Upload the `Trip-Kailash` folder to `/wp-content/themes/`
+   (the capitalisation matters: WordPress resolves the theme by directory name, and most hosts run a case-sensitive filesystem, so `trip-kailash` will not activate)
 2. Install and activate Elementor plugin
 3. Activate the Trip Kailash theme from WordPress admin
 4. Navigate to Appearance > Themes and activate "Trip Kailash"
@@ -43,6 +44,13 @@ trip-kailash/
 │   ├── taxonomies.php                # Taxonomy registration
 │   ├── rest-api.php                  # REST endpoints
 │   ├── enqueue.php                   # Asset enqueuing
+│   ├── helpers.php                   # Shared cached queries
+│   ├── form-handler.php              # Contact/booking form AJAX + email
+│   ├── seo.php                       # Meta tags, canonical domain
+│   ├── schema.php                    # JSON-LD structured data
+│   ├── sitemap.php                   # XML sitemaps (replaces core sitemaps)
+│   ├── geo-content.php               # Location-targeted content
+│   ├── performance.php               # Asset hints, cache headers, defer
 │   └── elementor/
 │       ├── elementor-init.php        # Elementor integration
 │       └── widgets/                  # Custom widgets
@@ -210,8 +218,39 @@ Add deity classes to body or containers for automatic color theming:
 
 ## Development
 
-Theme version: 1.0.0
+Theme version: see `TRIP_KAILASH_VERSION` in `functions.php` and `Version:` in `style.css`.
+Keep those two in sync -- the constant is what busts browser caches for CSS and JS.
+
 Text domain: trip-kailash
+
+### Before you push
+
+A WordPress theme has no build step, so nothing catches a PHP parse error before
+it reaches the server, where it becomes a white screen on the live site. Run the
+linter first:
+
+```bash
+bin/lint-php.sh
+```
+
+It needs PHP on your PATH (`winget install PHP.PHP` on Windows, `brew install php`
+on macOS). The same check runs in CI on every push and pull request via
+`.github/workflows/lint.yml`, pinned to PHP 8.4 to match production.
+
+### Where email goes
+
+Enquiry and booking email is sent to `TK_FORM_RECIPIENT`, defined in
+`functions.php` and overridable from `wp-config.php`. It is deliberately not
+configurable from the page: reading the recipient from the form let anyone submit
+their own destination address and use the site as a mail relay.
+
+### Configuration that lives outside this repo
+
+- `.htaccess` is not in version control, so the canonical domain redirect is
+  handled in `inc/seo.php` instead.
+- Page layouts are stored as Elementor data in the database, not as templates
+  here. A widget's PHP controls what it *can* render; the live page decides what
+  it *does* render.
 
 ## Browser Support
 

@@ -1,0 +1,21 @@
+name: Lint
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  php-syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          # Match the production runtime at tripkailash.com.
+          php-version: '8.4'
+
+      - name: Syntax-check every PHP file
+        run: bin/lint-php.sh
