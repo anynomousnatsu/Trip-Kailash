@@ -16,6 +16,18 @@ define('TRIP_KAILASH_VERSION', '1.0.1');
 define('TRIP_KAILASH_DIR', get_template_directory());
 define('TRIP_KAILASH_URI', get_template_directory_uri());
 
+/*
+ * Where enquiry and booking emails are delivered.
+ *
+ * This is deliberately server-side. The recipient used to be read from a
+ * hidden field in the public form, which let anyone POST their own address
+ * and have the site mail it for them. Define TK_FORM_RECIPIENT in
+ * wp-config.php to override this without editing the theme.
+ */
+if (!defined('TK_FORM_RECIPIENT')) {
+    define('TK_FORM_RECIPIENT', 'tripkailashnepal@gmail.com');
+}
+
 /**
  * Theme Setup
  */

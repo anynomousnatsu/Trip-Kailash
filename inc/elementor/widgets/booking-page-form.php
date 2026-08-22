@@ -515,10 +515,10 @@ class Booking_Page_Form extends Widget_Base
         $this->add_control(
             'email_recipient',
             [
-                'label' => __('Email Recipient', 'trip-kailash'),
+                'label' => __('Email Recipient (configured in theme)', 'trip-kailash'),
                 'type' => Controls_Manager::TEXT,
                 'default' => get_option('admin_email'),
-                'description' => __('Address that will receive booking enquiries from this widget.', 'trip-kailash'),
+                'description' => __('Enquiries are sent to the address configured in the theme (TK_FORM_RECIPIENT in wp-config.php, or the tk_form_recipient option). This field is no longer used: taking the recipient from the page let anyone submit their own destination address and use the site as a mail relay.', 'trip-kailash'),
             ]
         );
 
@@ -580,8 +580,6 @@ class Booking_Page_Form extends Widget_Base
                         <form class="tk-form tk-contact-form tk-booking-detail-form" method="post">
                             <?php wp_nonce_field('tk_contact_form', 'tk_contact_nonce'); ?>
                             <input type="hidden" name="action" value="tk_submit_contact_form">
-                            <input type="hidden" name="email_recipient"
-                                value="<?php echo esc_attr($settings['email_recipient']); ?>">
                             <input type="hidden" name="success_message"
                                 value="<?php echo esc_attr($settings['success_message']); ?>">
                             <input type="hidden" name="form_context" value="booking_detail">

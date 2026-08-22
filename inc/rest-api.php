@@ -42,8 +42,27 @@ function trip_kailash_get_package_details( $request ) {
     // Get the post
     $package = get_post( $package_id );
     
-    // Check if post exists and is the correct type
-    if ( ! $package || $package->post_type !== 'pilgrimage_package' ) {
+    /*
+     * SECURITY: this endpoint is public (permission_callback => __return_true),
+     * so it must only ever expose published, unprotected content.
+     *
+     * It previously checked post_type but not post_status, which meant anyone
+     * could walk IDs against /wp-json/tripkailash/v1/package/{id} and read
+     * draft, pending and private packages -- full body content, pricing and
+     * meta -- before they were ever published. Password-protected packages
+     * leaked their contents the same way.
+     */
+    if ( ! $package || 'pilgrimage_package' !== $package->post_type ) {
+        return new WP_Error(
+            'invalid_package',
+            esc_html__( 'Package not found.', 'trip-kailash' ),
+            array( 'status' => 404 )
+        );
+    }
+
+    if ( 'publish' !== $package->post_status || ! empty( $package->post_password ) ) {
+        // Same 404 as a missing package, so the response cannot be used to
+        // confirm that an unpublished package exists at a given ID.
         return new WP_Error(
             'invalid_package',
             esc_html__( 'Package not found.', 'trip-kailash' ),
