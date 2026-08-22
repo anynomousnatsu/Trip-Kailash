@@ -76,10 +76,10 @@ class Contact_Form extends Widget_Base
         $this->add_control(
             'email_recipient',
             [
-                'label' => __('Email Recipient', 'trip-kailash'),
+                'label' => __('Email Recipient (configured in theme)', 'trip-kailash'),
                 'type' => Controls_Manager::TEXT,
                 'default' => get_option('admin_email'),
-                'description' => __('Email address to receive form submissions', 'trip-kailash'),
+                'description' => __('Enquiries are sent to the address configured in the theme (TK_FORM_RECIPIENT in wp-config.php, or the tk_form_recipient option). This field is no longer used: taking the recipient from the page let anyone submit their own destination address and use the site as a mail relay.', 'trip-kailash'),
             ]
         );
 
@@ -91,12 +91,8 @@ class Contact_Form extends Widget_Base
         $settings = $this->get_settings_for_display();
 
         // Get all packages for dropdown
-        $packages = get_posts([
-            'post_type' => 'pilgrimage_package',
-            'posts_per_page' => -1,
-            'orderby' => 'title',
-            'order' => 'ASC',
-        ]);
+        // Cached id => title map; see tk_get_package_options() in inc/helpers.php.
+        $package_options = tk_get_package_options();
 
         ?>
         <section class="tk-contact-form-widget">
@@ -108,7 +104,6 @@ class Contact_Form extends Widget_Base
                 <?php wp_nonce_field('tk_contact_form', 'tk_contact_nonce'); ?>
 
                 <input type="hidden" name="action" value="tk_submit_contact_form">
-                <input type="hidden" name="email_recipient" value="<?php echo esc_attr($settings['email_recipient']); ?>">
                 <input type="hidden" name="success_message" value="<?php echo esc_attr($settings['success_message']); ?>">
 
                 <!-- Honeypot spam trap - hidden from users, bots will fill it -->
@@ -117,39 +112,45 @@ class Contact_Form extends Widget_Base
                 </div>
 
                 <div class="tk-form-group">
-                    <input type="text" name="name" class="tk-form-input" placeholder="<?php _e('Your Name', 'trip-kailash'); ?>"
-                        required>
+                    <label class="tk-form-label" for="tk-contact-name"><?php esc_html_e('Your Name', 'trip-kailash'); ?></label>
+                    <input type="text" name="name" id="tk-contact-name" class="tk-form-input" autocomplete="name"
+                        placeholder="<?php esc_attr_e('Your Name', 'trip-kailash'); ?>" required>
                 </div>
 
                 <div class="tk-form-group">
-                    <input type="email" name="email" class="tk-form-input"
-                        placeholder="<?php _e('Your Email', 'trip-kailash'); ?>" required>
+                    <label class="tk-form-label" for="tk-contact-email"><?php esc_html_e('Your Email', 'trip-kailash'); ?></label>
+                    <input type="email" name="email" id="tk-contact-email" class="tk-form-input" autocomplete="email"
+                        placeholder="<?php esc_attr_e('Your Email', 'trip-kailash'); ?>" required>
                 </div>
 
                 <div class="tk-form-group">
+                    <label class="tk-form-label" for="tk-package-interest"><?php esc_html_e('Package of Interest', 'trip-kailash'); ?></label>
                     <select name="package_interest" id="tk-package-interest" class="tk-form-select">
-                        <option value=""><?php _e('Select Package (Optional)', 'trip-kailash'); ?></option>
-                        <?php foreach ($packages as $package): ?>
-                            <option value="<?php echo esc_attr($package->post_title); ?>">
-                                <?php echo esc_html($package->post_title); ?>
+                        <option value=""><?php esc_html_e('Select Package (Optional)', 'trip-kailash'); ?></option>
+                        <?php foreach ($package_options as $package_title): ?>
+                            <option value="<?php echo esc_attr($package_title); ?>">
+                                <?php echo esc_html($package_title); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
 
                 <div class="tk-form-group">
-                    <input type="text" name="travel_month" class="tk-form-input"
-                        placeholder="<?php _e('Preferred Travel Month', 'trip-kailash'); ?>">
+                    <label class="tk-form-label" for="tk-travel-month"><?php esc_html_e('Preferred Travel Month', 'trip-kailash'); ?></label>
+                    <input type="text" name="travel_month" id="tk-travel-month" class="tk-form-input"
+                        placeholder="<?php esc_attr_e('Preferred Travel Month', 'trip-kailash'); ?>">
                 </div>
 
                 <div class="tk-form-group">
-                    <input type="number" name="group_size" class="tk-form-input"
-                        placeholder="<?php _e('Group Size', 'trip-kailash'); ?>" min="1">
+                    <label class="tk-form-label" for="tk-group-size"><?php esc_html_e('Group Size', 'trip-kailash'); ?></label>
+                    <input type="number" name="group_size" id="tk-group-size" class="tk-form-input"
+                        placeholder="<?php esc_attr_e('Group Size', 'trip-kailash'); ?>" min="1">
                 </div>
 
                 <div class="tk-form-group">
-                    <textarea name="message" class="tk-form-textarea" placeholder="<?php _e('Your Message', 'trip-kailash'); ?>"
-                        rows="5"></textarea>
+                    <label class="tk-form-label" for="tk-contact-message"><?php esc_html_e('Your Message', 'trip-kailash'); ?></label>
+                    <textarea name="message" id="tk-contact-message" class="tk-form-textarea"
+                        placeholder="<?php esc_attr_e('Your Message', 'trip-kailash'); ?>" rows="5"></textarea>
                 </div>
 
                 <button type="submit" class="tk-btn tk-btn-gold">

@@ -55,24 +55,40 @@ add_filter('script_loader_tag', 'tk_defer_scripts', 10, 3);
  */
 function tk_preload_critical_assets()
 {
-    // Preload main CSS
-    echo '<link rel="preload" href="' . esc_url(TRIP_KAILASH_URI . '/assets/css/base.css') . '" as="style">' . "\n";
+    /*
+     * Preload the stylesheets that gate first paint. These use the same
+     * URLs wp_enqueue_style() emits, so the preload warms the exact request
+     * the browser is about to make rather than a second, unused copy.
+     */
+    $critical_styles = array('variables.css', 'base.css', 'components.css');
+
+    foreach ($critical_styles as $style) {
+        $href = TRIP_KAILASH_URI . '/assets/css/' . $style . '?ver=' . TRIP_KAILASH_VERSION;
+        echo '<link rel="preload" href="' . esc_url($href) . '" as="style">' . "\n";
+    }
 
     // Preload fonts if using custom fonts
     // echo '<link rel="preload" href="' . esc_url(TRIP_KAILASH_URI . '/assets/fonts/font.woff2') . '" as="font" type="font/woff2" crossorigin>' . "\n";
 
-    // Preload hero image on homepage
+    /*
+     * Preload the homepage hero poster only when the file actually exists.
+     * The previous unconditional preload pointed at assets/images/hero-poster.jpg,
+     * which is not shipped with the theme, so every homepage load fetched a 404
+     * and the browser warned about an unused preload.
+     */
     if (is_front_page()) {
-        // Get hero video poster or fallback image
-        $hero_image = TRIP_KAILASH_URI . '/assets/images/hero-poster.jpg';
-        echo '<link rel="preload" href="' . esc_url($hero_image) . '" as="image">' . "\n";
+        $hero_image = '/assets/images/hero-poster.jpg';
+
+        if (file_exists(TRIP_KAILASH_DIR . $hero_image)) {
+            echo '<link rel="preload" href="' . esc_url(TRIP_KAILASH_URI . $hero_image) . '" as="image" fetchpriority="high">' . "\n";
+        }
     }
 
     // Preload featured image on single package pages
     if (is_singular('pilgrimage_package') && has_post_thumbnail()) {
         $image_url = get_the_post_thumbnail_url(get_the_ID(), 'large');
         if ($image_url) {
-            echo '<link rel="preload" href="' . esc_url($image_url) . '" as="image">' . "\n";
+            echo '<link rel="preload" href="' . esc_url($image_url) . '" as="image" fetchpriority="high">' . "\n";
         }
     }
 }
@@ -192,62 +208,74 @@ function tk_add_fetchpriority($attr, $attachment, $size)
 add_filter('wp_get_attachment_image_attributes', 'tk_add_fetchpriority', 10, 3);
 
 /**
- * Optimize script loading order
+ * Drop the jQuery dependency from theme scripts that do not use it.
  *
- * @param array $deps Script dependencies
- * @param string $handle Script handle
- * @return array Modified dependencies
+ * This is hooked to script_loader_dependencies. It was previously hooked to
+ * nothing at all, so it never ran, and a second no-op script_loader_tag
+ * filter sat below it returning $tag unchanged for every script on the page.
+ *
+ * @param array  $deps   Script dependencies.
+ * @param string $handle Script handle.
+ * @return array Modified dependencies.
  */
 function tk_optimize_script_deps($deps, $handle)
 {
-    // Remove jQuery dependency from theme scripts if not needed
     $no_jquery_needed = array(
         'trip-kailash-main',
         'trip-kailash-mobile-nav',
         'trip-kailash-video-controls',
+        'trip-kailash-overlay',
+        'trip-kailash-header',
     );
 
-    if (in_array($handle, $no_jquery_needed)) {
-        $deps = array_diff($deps, array('jquery'));
+    if (in_array($handle, $no_jquery_needed, true)) {
+        $deps = array_diff($deps, array('jquery', 'jquery-core', 'jquery-migrate'));
     }
 
     return $deps;
 }
-add_filter('script_loader_tag', function ($tag, $handle) {
-    // Add type="module" for ES6 modules if needed
-    return $tag;
-}, 10, 2);
+add_filter('script_loader_dependencies', 'tk_optimize_script_deps', 10, 2);
 
 /**
- * Add browser caching headers via PHP (fallback if .htaccess not available)
+ * Send cache headers for front-end HTML.
+ *
+ * The previous version sent "public, max-age=86400" on every single post,
+ * which told browsers and any shared proxy to hold the rendered HTML for a
+ * full day. Editing a package or a page then had no visible effect for
+ * returning visitors until that cache expired on its own.
+ *
+ * The pattern below keeps the caching benefit without that trap:
+ *   max-age=0                -> the browser always revalidates, so content
+ *                               edits are visible on the next request
+ *   s-maxage                 -> a CDN or reverse proxy still absorbs the
+ *                               traffic, which is where the real win is
+ *   stale-while-revalidate   -> the proxy serves the cached copy instantly
+ *                               and refreshes it in the background
  */
 function tk_add_cache_headers()
 {
-    if (is_admin()) {
+    if (is_admin() || headers_sent()) {
         return;
     }
 
-    // Don't cache dynamic pages
-    if (is_user_logged_in() || is_search() || is_404()) {
+    // Never cache anything request-specific or user-specific.
+    if (is_user_logged_in() || is_search() || is_404() || is_preview() || is_customize_preview()) {
         return;
     }
 
-    // Set cache headers for static pages
-    $cache_time = 3600; // 1 hour
-
-    if (is_singular()) {
-        $cache_time = 86400; // 24 hours for single posts
+    // Never cache the response to a form submission.
+    if (isset($_SERVER['REQUEST_METHOD']) && 'GET' !== strtoupper($_SERVER['REQUEST_METHOD'])) {
+        return;
     }
 
-    if (is_front_page()) {
-        $cache_time = 3600; // 1 hour for homepage
-    }
+    $shared_max_age = is_front_page() ? 300 : 600;
 
-    // Only set if headers not already sent
-    if (!headers_sent()) {
-        header('Cache-Control: public, max-age=' . $cache_time);
-        header('Vary: Accept-Encoding');
-    }
+    header(sprintf(
+        'Cache-Control: public, max-age=0, s-maxage=%d, stale-while-revalidate=%d',
+        $shared_max_age,
+        DAY_IN_SECONDS
+    ));
+    header('Vary: Accept-Encoding');
 }
 add_action('send_headers', 'tk_add_cache_headers');
 
@@ -289,21 +317,20 @@ function tk_inline_critical_css()
 }
 add_action('wp_head', 'tk_inline_critical_css', 1);
 
-/**
- * Remove query strings from static resources
+/*
+ * NOTE: a tk_remove_query_strings() filter used to strip ?ver= from every
+ * style and script URL here, hooked to style_loader_src and script_loader_src.
  *
- * @param string $src Resource URL
- * @return string Modified URL
+ * It was removed deliberately. Stripping ?ver= is an old "grade your site"
+ * trick that does not make anything faster on HTTP/2 -- but it does break
+ * cache busting: once a visitor has cached /assets/css/components.css with
+ * no version key, they keep serving the stale copy after every deploy until
+ * the cache expires on its own. TRIP_KAILASH_VERSION exists precisely so
+ * that bumping it invalidates client caches, and this filter defeated it.
+ *
+ * Set long cache lifetimes at the server or CDN instead; the ?ver= key is
+ * what makes those long lifetimes safe.
  */
-function tk_remove_query_strings($src)
-{
-    if (strpos($src, '?ver=') !== false) {
-        $src = remove_query_arg('ver', $src);
-    }
-    return $src;
-}
-add_filter('style_loader_src', 'tk_remove_query_strings', 10);
-add_filter('script_loader_src', 'tk_remove_query_strings', 10);
 
 /**
  * Force swap for Google Fonts to prevent FOIT

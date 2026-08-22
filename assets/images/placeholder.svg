@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Image coming soon">
+  <defs>
+    <linearGradient id="tk-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2C3E50"/>
+      <stop offset="100%" stop-color="#54606B"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#tk-sky)"/>
+  <!-- Far ridge -->
+  <path d="M0 430 L150 330 L250 400 L360 300 L470 405 L590 320 L800 445 L800 600 L0 600 Z" fill="#6B7783" opacity="0.55"/>
+  <!-- Near ridge -->
+  <path d="M0 480 L180 385 L310 465 L430 375 L560 470 L680 405 L800 490 L800 600 L0 600 Z" fill="#8A949E" opacity="0.7"/>
+  <!-- Snow caps -->
+  <path d="M360 300 L400 338 L378 340 L360 330 L342 342 L320 338 Z" fill="#F5F2ED" opacity="0.9"/>
+  <path d="M430 375 L462 406 L444 408 L430 400 L414 410 L396 406 Z" fill="#F5F2ED" opacity="0.85"/>
+  <circle cx="640" cy="150" r="42" fill="#B8860B" opacity="0.5"/>
+</svg>

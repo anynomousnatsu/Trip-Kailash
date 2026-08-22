@@ -13,6 +13,46 @@ if (!defined('ABSPATH')) {
 }
 
 /**
+ * Resolve where enquiry email is sent.
+ *
+ * SECURITY: this used to read $_POST['email_recipient'], which was rendered
+ * into the public form as a hidden input. Anyone could POST an arbitrary
+ * address and have the site mail it on their behalf -- an open relay running
+ * on the site's own domain and SMTP reputation, which is how a domain ends up
+ * on spam blacklists. The nonce was no defence: nonces are embedded in the
+ * public page HTML, so an attacker just loads a page to obtain a valid one.
+ *
+ * The destination is now server-side only and can never be influenced by the
+ * request. Override it by defining TK_FORM_RECIPIENT in wp-config.php, by
+ * setting the tk_form_recipient option, or via the filter below.
+ *
+ * @return string Validated recipient address.
+ */
+function tk_get_form_recipient()
+{
+    if (defined('TK_FORM_RECIPIENT') && is_email(TK_FORM_RECIPIENT)) {
+        $recipient = TK_FORM_RECIPIENT;
+    } else {
+        $recipient = get_option('tk_form_recipient', '');
+    }
+
+    if (!is_email($recipient)) {
+        $recipient = get_option('admin_email');
+    }
+
+    /**
+     * Filter the enquiry recipient.
+     *
+     * Anything hooked here must not read from $_POST, $_GET or $_REQUEST.
+     *
+     * @param string $recipient Recipient address.
+     */
+    $recipient = apply_filters('tk_form_recipient', $recipient);
+
+    return is_email($recipient) ? $recipient : get_option('admin_email');
+}
+
+/**
  * Handle contact form AJAX submission
  */
 function tk_handle_contact_form()
@@ -37,7 +77,8 @@ function tk_handle_contact_form()
     // Sanitize basic form data
     $name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
     $email = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
-    $recipient = isset($_POST['email_recipient']) ? sanitize_email($_POST['email_recipient']) : get_option('admin_email');
+    // Resolved server-side only. See tk_get_form_recipient() below for why.
+    $recipient = tk_get_form_recipient();
     $form_context = isset($_POST['form_context']) ? sanitize_text_field($_POST['form_context']) : 'contact';
 
     // Sanitize booking-specific fields
@@ -111,15 +152,16 @@ function tk_handle_contact_form()
         'Reply-To: ' . $name . ' <' . $email . '>',
     );
 
-    // Debug logging
-    error_log('Trip Kailash Form: Attempting to send email to: ' . $recipient);
-    error_log('Trip Kailash Form: Subject: ' . $subject);
-    error_log('Trip Kailash Form: Form context: ' . $form_context);
-
     // Send email using wp_mail (WP Mail SMTP will intercept this)
     $sent = wp_mail($recipient, $subject, $body, $headers);
 
-    error_log('Trip Kailash Form: wp_mail returned: ' . ($sent ? 'true' : 'false'));
+    // Only log failures. The previous version wrote the recipient, subject and
+    // form context to the PHP error log on every successful submission, which
+    // put enquirer names and email addresses into a file that is often world
+    // readable on shared hosting and is not covered by any retention policy.
+    if (!$sent) {
+        error_log('Trip Kailash Form: wp_mail() failed for context ' . $form_context);
+    }
 
     if ($sent) {
         do_action('tk_contact_form_sent', array(
@@ -130,8 +172,6 @@ function tk_handle_contact_form()
 
         wp_send_json_success(array(
             'message' => __('Thank you for your message. We will get back to you soon!', 'trip-kailash'),
-            'sent_to' => $recipient,
-            'debug_info' => 'Email sent successfully via wp_mail'
         ));
     } else {
         global $phpmailer;

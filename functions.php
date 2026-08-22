@@ -16,6 +16,18 @@ define('TRIP_KAILASH_VERSION', '1.0.1');
 define('TRIP_KAILASH_DIR', get_template_directory());
 define('TRIP_KAILASH_URI', get_template_directory_uri());
 
+/*
+ * Where enquiry and booking emails are delivered.
+ *
+ * This is deliberately server-side. The recipient used to be read from a
+ * hidden field in the public form, which let anyone POST their own address
+ * and have the site mail it for them. Define TK_FORM_RECIPIENT in
+ * wp-config.php to override this without editing the theme.
+ */
+if (!defined('TK_FORM_RECIPIENT')) {
+    define('TK_FORM_RECIPIENT', 'tripkailashnepal@gmail.com');
+}
+
 /**
  * Theme Setup
  */
@@ -58,6 +70,7 @@ add_action('after_setup_theme', 'trip_kailash_setup');
 /**
  * Include required files
  */
+require_once TRIP_KAILASH_DIR . '/inc/helpers.php';
 require_once TRIP_KAILASH_DIR . '/inc/enqueue.php';
 require_once TRIP_KAILASH_DIR . '/inc/custom-post-types.php';
 require_once TRIP_KAILASH_DIR . '/inc/taxonomies.php';
@@ -186,9 +199,19 @@ function trip_kailash_body_classes($classes)
     return $classes;
 }
 add_filter('body_class', 'trip_kailash_body_classes');
-
+/**
+ * Register the theme's CPTs with Elementor.
+ *
+ * Only writes the option when it actually needs to change, and only in
+ * contexts where Elementor reads it (admin, editor, REST). Previously this
+ * ran update_option() on every front-end request.
+ */
 function trip_kailash_enable_elementor_for_cpts()
 {
+    if (!is_admin() && !wp_doing_ajax() && !(defined('REST_REQUEST') && REST_REQUEST)) {
+        return;
+    }
+
     $post_types = array('pilgrimage_package', 'guide', 'lodge');
     $supported = get_option('elementor_cpt_support', array('post', 'page'));
 
@@ -196,9 +219,12 @@ function trip_kailash_enable_elementor_for_cpts()
         $supported = array('post', 'page');
     }
 
-    $supported = array_unique(array_merge($supported, $post_types));
+    // Nothing to do if every CPT is already registered.
+    if (!array_diff($post_types, $supported)) {
+        return;
+    }
 
-    update_option('elementor_cpt_support', $supported);
+    update_option('elementor_cpt_support', array_values(array_unique(array_merge($supported, $post_types))));
 }
 add_action('init', 'trip_kailash_enable_elementor_for_cpts');
 

@@ -17,23 +17,34 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Enqueue theme styles and scripts
  */
 function trip_kailash_enqueue_assets() {
-    // Enqueue main stylesheet
-    wp_enqueue_style(
-        'trip-kailash-main',
-        TRIP_KAILASH_URI . '/assets/css/main.css',
-        array(),
-        TRIP_KAILASH_VERSION,
-        'all'
+    /*
+     * Stylesheets are registered individually rather than chained through
+     * @import in main.css. @import forces the browser to discover each file
+     * only after the previous one has parsed, producing a serial
+     * render-blocking waterfall. Separate handles let them download in
+     * parallel while the dependency chain preserves cascade order.
+     */
+    $styles = array(
+        'trip-kailash-variables'  => array( 'variables.css', array() ),
+        'trip-kailash-base'       => array( 'base.css', array( 'trip-kailash-variables' ) ),
+        'trip-kailash-components' => array( 'components.css', array( 'trip-kailash-base' ) ),
+        'trip-kailash-header'     => array( 'header.css', array( 'trip-kailash-components' ) ),
+        'trip-kailash-footer'     => array( 'footer.css', array( 'trip-kailash-header' ) ),
+        // Elementor overrides must win the cascade, so they load last.
+        'trip-kailash-elementor'  => array( 'elementor-overrides.css', array( 'trip-kailash-footer' ) ),
+        'trip-kailash-seo'        => array( 'seo-components.css', array( 'trip-kailash-elementor' ) ),
     );
-    
-    // Enqueue SEO components stylesheet
-    wp_enqueue_style(
-        'trip-kailash-seo-components',
-        TRIP_KAILASH_URI . '/assets/css/seo-components.css',
-        array('trip-kailash-main'),
-        TRIP_KAILASH_VERSION,
-        'all'
-    );
+
+    foreach ( $styles as $handle => $style ) {
+        list( $file, $deps ) = $style;
+        wp_enqueue_style(
+            $handle,
+            TRIP_KAILASH_URI . '/assets/css/' . $file,
+            $deps,
+            TRIP_KAILASH_VERSION,
+            'all'
+        );
+    }
 
     // Enqueue JavaScript files
     // Overlay script for package details
