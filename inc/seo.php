@@ -29,6 +29,45 @@ function tk_block_malware_requests()
 add_action('init', 'tk_block_malware_requests');
 
 /**
+ * Permanently redirect retired URLs.
+ *
+ * Deleting a published post leaves its URL returning 404 to anyone who
+ * follows an old link, and to Google, which keeps requesting it and reports
+ * it as a crawl error until it gives up. A 301 passes any accumulated
+ * signal to a live page and tells crawlers the move is permanent.
+ *
+ * Keyed by path, without the trailing slash. Add retired URLs here rather
+ * than leaving them to 404.
+ *
+ * @return void
+ */
+function tk_redirect_retired_urls()
+{
+    if (is_admin()) {
+        return;
+    }
+
+    $retired = array(
+        // Default WordPress sample post, removed 2026-08-23.
+        '/hello-world' => '/',
+    );
+
+    $path = wp_parse_url(add_query_arg(array()), PHP_URL_PATH);
+
+    if (!$path) {
+        return;
+    }
+
+    $path = '/' . trim($path, '/');
+
+    if (isset($retired[$path])) {
+        wp_safe_redirect(home_url($retired[$path]), 301);
+        exit;
+    }
+}
+add_action('template_redirect', 'tk_redirect_retired_urls', 0);
+
+/**
  * Enforce canonical domain (non-www)
  * Handles redirection at the theme level since .htaccess is not in git
  */
