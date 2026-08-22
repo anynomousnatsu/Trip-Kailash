@@ -91,12 +91,8 @@ class Contact_Form extends Widget_Base
         $settings = $this->get_settings_for_display();
 
         // Get all packages for dropdown
-        $packages = get_posts([
-            'post_type' => 'pilgrimage_package',
-            'posts_per_page' => -1,
-            'orderby' => 'title',
-            'order' => 'ASC',
-        ]);
+        // Cached id => title map; see tk_get_package_options() in inc/helpers.php.
+        $package_options = tk_get_package_options();
 
         ?>
         <section class="tk-contact-form-widget">
@@ -129,9 +125,9 @@ class Contact_Form extends Widget_Base
                 <div class="tk-form-group">
                     <select name="package_interest" id="tk-package-interest" class="tk-form-select">
                         <option value=""><?php _e('Select Package (Optional)', 'trip-kailash'); ?></option>
-                        <?php foreach ($packages as $package): ?>
-                            <option value="<?php echo esc_attr($package->post_title); ?>">
-                                <?php echo esc_html($package->post_title); ?>
+                        <?php foreach ($package_options as $package_title): ?>
+                            <option value="<?php echo esc_attr($package_title); ?>">
+                                <?php echo esc_html($package_title); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>

@@ -542,12 +542,8 @@ class Booking_Page_Form extends Widget_Base
         }
 
         // Get packages for dropdown
-        $packages = get_posts([
-            'post_type' => 'pilgrimage_package',
-            'posts_per_page' => -1,
-            'orderby' => 'title',
-            'order' => 'ASC',
-        ]);
+        // Cached id => title map; see tk_get_package_options() in inc/helpers.php.
+        $package_options = tk_get_package_options();
         ?>
         <section class="tk-booking-detail">
             <div class="tk-container">
@@ -675,9 +671,9 @@ class Booking_Page_Form extends Widget_Base
                                     <select id="tk-booking-package-detail" name="package_interest" class="tk-form-select">
                                         <option value=""><?php esc_html_e('I am exploring options', 'trip-kailash'); ?>
                                         </option>
-                                        <?php foreach ($packages as $package): ?>
-                                            <option value="<?php echo esc_attr($package->post_title); ?>">
-                                                <?php echo esc_html($package->post_title); ?>
+                                        <?php foreach ($package_options as $package_title): ?>
+                                            <option value="<?php echo esc_attr($package_title); ?>">
+                                                <?php echo esc_html($package_title); ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>

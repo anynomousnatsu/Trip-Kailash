@@ -58,6 +58,7 @@ add_action('after_setup_theme', 'trip_kailash_setup');
 /**
  * Include required files
  */
+require_once TRIP_KAILASH_DIR . '/inc/helpers.php';
 require_once TRIP_KAILASH_DIR . '/inc/enqueue.php';
 require_once TRIP_KAILASH_DIR . '/inc/custom-post-types.php';
 require_once TRIP_KAILASH_DIR . '/inc/taxonomies.php';

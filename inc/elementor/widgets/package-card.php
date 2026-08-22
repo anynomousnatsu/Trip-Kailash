@@ -42,18 +42,8 @@ class Package_Card extends Widget_Base {
             ]
         );
 
-        // Get all pilgrimage packages
-        $packages = get_posts([
-            'post_type' => 'pilgrimage_package',
-            'posts_per_page' => -1,
-            'orderby' => 'title',
-            'order' => 'ASC',
-        ]);
-
-        $package_options = [];
-        foreach ($packages as $package) {
-            $package_options[$package->ID] = $package->post_title;
-        }
+        // Cached id => title map; see tk_get_package_options() in inc/helpers.php.
+        $package_options = tk_get_package_options();
 
         $this->add_control(
             'package_id',
