@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define theme constants
-define('TRIP_KAILASH_VERSION', '1.0.2');
+define('TRIP_KAILASH_VERSION', '1.0.3');
 define('TRIP_KAILASH_DIR', get_template_directory());
 define('TRIP_KAILASH_URI', get_template_directory_uri());
 

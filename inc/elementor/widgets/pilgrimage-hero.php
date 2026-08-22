@@ -74,6 +74,35 @@ class Pilgrimage_Hero extends Widget_Base
             ]
         );
 
+        /*
+         * The hero crops a wide photo into a short band with object-fit:cover,
+         * which keeps the centre and throws away the top and bottom. On the
+         * Muktinath page that discarded the temple itself. These two controls
+         * move the kept region instead of the image, so the subject can be
+         * brought into frame without re-cropping the file.
+         */
+        $this->add_control(
+            'focal_x',
+            [
+                'label' => __('Image Focus: Horizontal (%)', 'trip-kailash'),
+                'type' => Controls_Manager::SLIDER,
+                'range' => ['%' => ['min' => 0, 'max' => 100]],
+                'default' => ['size' => 50, 'unit' => '%'],
+                'description' => __('0 = show the left edge, 100 = show the right edge.', 'trip-kailash'),
+            ]
+        );
+
+        $this->add_control(
+            'focal_y',
+            [
+                'label' => __('Image Focus: Vertical (%)', 'trip-kailash'),
+                'type' => Controls_Manager::SLIDER,
+                'range' => ['%' => ['min' => 0, 'max' => 100]],
+                'default' => ['size' => 50, 'unit' => '%'],
+                'description' => __('0 = show the top of the photo, 100 = show the bottom. Lower this to bring a temple or peak into frame.', 'trip-kailash'),
+            ]
+        );
+
         $this->add_control(
             'overlay_opacity',
             [
@@ -117,10 +146,19 @@ class Pilgrimage_Hero extends Widget_Base
         // Get overlay opacity (will be used for gradient intensity)
         $overlay_opacity = $settings['overlay_opacity']['size'] / 100;
 
+        // Focal point, clamped so a stray value cannot produce invalid CSS.
+        $focal_x = isset($settings['focal_x']['size']) && is_numeric($settings['focal_x']['size'])
+            ? max(0, min(100, (float) $settings['focal_x']['size']))
+            : 50;
+        $focal_y = isset($settings['focal_y']['size']) && is_numeric($settings['focal_y']['size'])
+            ? max(0, min(100, (float) $settings['focal_y']['size']))
+            : 50;
+
         ?>
         <section class="tk-pilgrimage-hero">
             <?php if ($bg_image): ?>
                 <img src="<?php echo esc_url($bg_image); ?>" alt="<?php echo esc_attr($title); ?>" class="tk-pilgrimage-hero__bg"
+                    style="object-position: <?php echo esc_attr($focal_x . '% ' . $focal_y . '%'); ?>;"
                     fetchpriority="high" loading="eager">
             <?php endif; ?>
             <div class="tk-pilgrimage-hero__overlay" style="opacity: <?php echo esc_attr($overlay_opacity * 1.5); ?>;"></div>
@@ -147,7 +185,13 @@ class Pilgrimage_Hero extends Widget_Base
                 /* Removed background-image styles */
             }
 
-            .tk-pilgrimage-hero__bg {
+            /*
+             * Scoped through the parent so this beats Elementor's
+             * `.elementor img { height: auto }`, which is printed after the
+             * theme's CSS and otherwise wins the tie, collapsing the hero
+             * image to its intrinsic height instead of filling the band.
+             */
+            .tk-pilgrimage-hero .tk-pilgrimage-hero__bg {
                 position: absolute;
                 top: 0;
                 left: 0;

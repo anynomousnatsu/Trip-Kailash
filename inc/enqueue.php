@@ -35,6 +35,24 @@ function trip_kailash_enqueue_assets() {
         'trip-kailash-seo'        => array( 'seo-components.css', array( 'trip-kailash-elementor' ) ),
     );
 
+    /*
+     * Make the Elementor override sheet load AFTER Elementor's own CSS.
+     *
+     * Elementor prints frontend.min.css after every theme stylesheet, so a
+     * rule like `.elementor img { height: auto }` beat the theme's equally
+     * specific `.tk-package-card__image img { height: 100% }` purely on
+     * source order. The file whose entire purpose is overriding Elementor
+     * was losing every tie. Declaring the dependency lets WordPress order
+     * it correctly instead of escalating specificity forever.
+     *
+     * Guarded on the handle actually being registered: wp_enqueue_style()
+     * silently drops a stylesheet whose dependency does not exist, which
+     * would take the overrides off the page entirely.
+     */
+    if ( wp_style_is( 'elementor-frontend', 'registered' ) ) {
+        $styles['trip-kailash-elementor'][1][] = 'elementor-frontend';
+    }
+
     foreach ( $styles as $handle => $style ) {
         list( $file, $deps ) = $style;
         wp_enqueue_style(
