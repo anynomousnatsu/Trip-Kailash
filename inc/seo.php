@@ -416,7 +416,25 @@ function tk_get_og_tags($post = null)
         'og:locale' => get_locale(),
     );
 
-    if (is_singular() && $post) {
+    /*
+     * The front page is the site, not an article.
+     *
+     * It is a static Page here, so is_singular() matches it and it was being
+     * advertised as og:type "article" titled "Home | Trip Kailash". Shares of
+     * the homepage therefore looked like a blog post called "Home". Checked
+     * before is_singular() so the front page never falls through to the
+     * article branch.
+     */
+    if (is_front_page()) {
+        $site_name = get_bloginfo('name');
+        $tagline = get_bloginfo('description');
+
+        $og['og:type'] = 'website';
+        $og['og:title'] = $tagline ? $site_name . ' - ' . $tagline : $site_name;
+        $og['og:description'] = tk_generate_meta_description($post);
+        $og['og:url'] = home_url('/');
+        $og['og:image'] = tk_get_default_og_image();
+    } elseif (is_singular() && $post) {
         $og['og:type'] = ($post->post_type === 'pilgrimage_package') ? 'product' : 'article';
         $og['og:title'] = tk_generate_meta_title($post);
         $og['og:description'] = tk_generate_meta_description($post);
@@ -466,15 +484,36 @@ function tk_output_twitter_cards()
 {
     $post = get_post();
 
-    echo '<meta name="twitter:card" content="summary_large_image" />' . "\n";
-    echo '<meta name="twitter:title" content="' . esc_attr(tk_generate_meta_title($post)) . '" />' . "\n";
-    echo '<meta name="twitter:description" content="' . esc_attr(tk_generate_meta_description($post)) . '" />' . "\n";
+    /*
+     * Resolve the image before declaring the card type.
+     *
+     * twitter:image previously required a featured image, so every page
+     * without one -- the homepage included -- declared summary_large_image
+     * and then supplied no image, which X renders as a bare text link.
+     * Falls back to the same default the Open Graph tags use, and drops to
+     * the plain summary card only when no image exists anywhere.
+     */
+    $twitter_image = '';
 
     if (is_singular() && has_post_thumbnail($post)) {
         $image = wp_get_attachment_image_src(get_post_thumbnail_id($post), 'large');
         if ($image) {
-            echo '<meta name="twitter:image" content="' . esc_url($image[0]) . '" />' . "\n";
+            $twitter_image = $image[0];
         }
+    }
+
+    if (!$twitter_image) {
+        $twitter_image = tk_get_default_og_image();
+    }
+
+    $card_type = $twitter_image ? 'summary_large_image' : 'summary';
+
+    echo '<meta name="twitter:card" content="' . esc_attr($card_type) . '" />' . "\n";
+    echo '<meta name="twitter:title" content="' . esc_attr(tk_generate_meta_title($post)) . '" />' . "\n";
+    echo '<meta name="twitter:description" content="' . esc_attr(tk_generate_meta_description($post)) . '" />' . "\n";
+
+    if ($twitter_image) {
+        echo '<meta name="twitter:image" content="' . esc_url($twitter_image) . '" />' . "\n";
     }
 }
 
