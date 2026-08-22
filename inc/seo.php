@@ -76,11 +76,26 @@ function tk_generate_meta_title($post = null)
         $post = get_post();
     }
 
-    if (!$post) {
-        return get_bloginfo('name');
+    $site_name = get_bloginfo('name');
+
+    /*
+     * The front page is titled by the site, not by the Page behind it.
+     *
+     * Without this, a static front page returns "Home | Trip Kailash",
+     * because the Page really is called "Home". og:title special-cased the
+     * front page while this function did not, so the two disagreed on the
+     * same request. Handled here so every caller gets the same answer.
+     */
+    if (is_front_page()) {
+        $tagline = get_bloginfo('description');
+
+        return esc_html($tagline ? $site_name . ' - ' . $tagline : $site_name);
     }
 
-    $site_name = get_bloginfo('name');
+    if (!$post) {
+        return $site_name;
+    }
+
     $title = '';
 
     // Package-specific title
