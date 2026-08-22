@@ -55,6 +55,18 @@ class Hero_Video_V2 extends Widget_Base
                 'type' => Controls_Manager::MEDIA,
                 'media_types' => ['video'],
                 'default' => ['url' => ''],
+                'description' => __('Export at 1920x1080 or smaller. A 4K hero clip is tens of megabytes and is downloaded in full before the page can paint.', 'trip-kailash'),
+            ]
+        );
+
+        $this->add_control(
+            'video_poster',
+            [
+                'label' => __('Poster Image', 'trip-kailash'),
+                'type' => Controls_Manager::MEDIA,
+                'media_types' => ['image'],
+                'default' => ['url' => ''],
+                'description' => __('Shown immediately while the video loads, and shown instead of the video on phones and data-saver connections. Use the first frame of the clip.', 'trip-kailash'),
             ]
         );
 
@@ -208,6 +220,11 @@ class Hero_Video_V2 extends Widget_Base
             $video_url = esc_url($settings['video_source']['url']);
         }
 
+        $poster_url = '';
+        if (!empty($settings['video_poster']) && is_array($settings['video_poster']) && !empty($settings['video_poster']['url'])) {
+            $poster_url = esc_url($settings['video_poster']['url']);
+        }
+
         $show_trishul = !empty($settings['show_trishul']) && $settings['show_trishul'] === 'yes';
         $heading = !empty($settings['heading']) ? $settings['heading'] : '';
         $subheading = !empty($settings['subheading']) ? $settings['subheading'] : '';
@@ -235,10 +252,29 @@ class Hero_Video_V2 extends Widget_Base
         ?>
         <section class="tk-hero-video">
             <?php if ($video_url): ?>
-                <video class="tk-hero-video__video" autoplay muted loop playsinline>
-                    <source src="<?php echo $video_url; ?>" type="video/mp4">
-                    <?php esc_html_e('Your browser does not support the video tag.', 'trip-kailash'); ?>
-                </video>
+                <?php
+                /*
+                 * The source is deliberately NOT rendered as a src attribute.
+                 *
+                 * autoplay makes the browser ignore preload hints and fetch the
+                 * whole file before first paint. The hero clip on this site is
+                 * a 3840x2160 mp4 of roughly 27MB, which is over 90% of the
+                 * homepage's total weight and is downloaded in full on a phone
+                 * over mobile data before anything is visible.
+                 *
+                 * assets/js/video-controls.js attaches the source only when the
+                 * viewport is wide enough for the detail to matter and the
+                 * visitor has not asked to save data. Everyone else gets the
+                 * poster image, which is the same first frame at a fraction of
+                 * the bytes.
+                 */
+                ?>
+                <video class="tk-hero-video__video" muted loop playsinline preload="none"
+                    data-tk-video-src="<?php echo esc_url($video_url); ?>"
+                    <?php if ($poster_url): ?>poster="<?php echo esc_url($poster_url); ?>" <?php endif; ?>></video>
+            <?php elseif ($poster_url): ?>
+                <img class="tk-hero-video__video" src="<?php echo esc_url($poster_url); ?>" alt=""
+                    fetchpriority="high" decoding="async">
             <?php endif; ?>
 
             <div class="tk-hero-overlay" style="--overlay-opacity: <?php echo esc_attr($overlay_opacity / 100); ?>;">
