@@ -52,38 +52,81 @@ function tk_sitemap_template_redirect()
         return;
     }
 
+    $builders = array(
+        'index'    => 'tk_output_sitemap_index',
+        'pages'    => 'tk_output_pages_sitemap',
+        'packages' => 'tk_output_packages_sitemap',
+        'guides'   => 'tk_output_guides_sitemap',
+        'lodges'   => 'tk_output_lodges_sitemap',
+        'deities'  => 'tk_output_deities_sitemap',
+    );
+
+    if (!isset($builders[$sitemap_type])) {
+        status_header(404);
+        exit;
+    }
+
     // Set XML content type
     header('Content-Type: application/xml; charset=UTF-8');
     // Note: Sitemaps don't need indexing themselves - they're for search engines to discover your content
     // Removed X-Robots-Tag: noindex to avoid GSC warnings when inspecting sitemap URLs
 
-    switch ($sitemap_type) {
-        case 'index':
-            tk_output_sitemap_index();
-            break;
-        case 'pages':
-            tk_output_pages_sitemap();
-            break;
-        case 'packages':
-            tk_output_packages_sitemap();
-            break;
-        case 'guides':
-            tk_output_guides_sitemap();
-            break;
-        case 'lodges':
-            tk_output_lodges_sitemap();
-            break;
-        case 'deities':
-            tk_output_deities_sitemap();
-            break;
-        default:
-            status_header(404);
-            exit;
+    /*
+     * Sitemaps are rebuilt from unbounded queries -- every published page,
+     * package, guide and lodge. Rendering that on every crawler hit is
+     * wasteful, and crawlers hit sitemaps often. Cache the finished XML and
+     * rebuild only when content changes (see tk_flush_sitemap_cache) or when
+     * the cache expires.
+     */
+    $cache_key = TK_SITEMAP_CACHE_PREFIX . $sitemap_type;
+    $xml = get_transient($cache_key);
+
+    if (!is_string($xml) || '' === $xml) {
+        ob_start();
+        call_user_func($builders[$sitemap_type]);
+        $xml = ob_get_clean();
+
+        if ('' !== $xml) {
+            set_transient($cache_key, $xml, TK_SITEMAP_CACHE_TTL);
+        }
     }
+
+    header('Cache-Control: public, max-age=' . TK_SITEMAP_CACHE_TTL);
+    echo $xml;
 
     exit;
 }
 add_action('template_redirect', 'tk_sitemap_template_redirect');
+
+/**
+ * Transient key prefix and lifetime for cached sitemap XML.
+ */
+const TK_SITEMAP_CACHE_PREFIX = 'tk_sitemap_xml_';
+const TK_SITEMAP_CACHE_TTL = 6 * HOUR_IN_SECONDS;
+
+/**
+ * Drop every cached sitemap when indexable content changes.
+ *
+ * @param int $post_id Post ID being written.
+ * @return void
+ */
+function tk_flush_sitemap_cache($post_id = 0)
+{
+    if ($post_id && wp_is_post_revision($post_id)) {
+        return;
+    }
+
+    foreach (array('index', 'pages', 'packages', 'guides', 'lodges', 'deities') as $type) {
+        delete_transient(TK_SITEMAP_CACHE_PREFIX . $type);
+    }
+}
+add_action('save_post', 'tk_flush_sitemap_cache');
+add_action('trashed_post', 'tk_flush_sitemap_cache');
+add_action('untrashed_post', 'tk_flush_sitemap_cache');
+add_action('deleted_post', 'tk_flush_sitemap_cache');
+add_action('edited_deity', 'tk_flush_sitemap_cache');
+add_action('created_deity', 'tk_flush_sitemap_cache');
+add_action('delete_deity', 'tk_flush_sitemap_cache');
 
 /**
  * Check if a post type has published posts
@@ -175,6 +218,9 @@ function tk_output_pages_sitemap()
         'posts_per_page' => -1,
         'orderby' => 'modified',
         'order' => 'DESC',
+        'no_found_rows' => true,
+        'update_post_meta_cache' => false,
+        'update_post_term_cache' => false,
     ));
 
     $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
@@ -214,6 +260,9 @@ function tk_output_packages_sitemap()
         'posts_per_page' => -1,
         'orderby' => 'modified',
         'order' => 'DESC',
+        'no_found_rows' => true,
+        'update_post_meta_cache' => true,
+        'update_post_term_cache' => false,
     ));
 
     $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
@@ -252,6 +301,9 @@ function tk_output_guides_sitemap()
         'posts_per_page' => -1,
         'orderby' => 'modified',
         'order' => 'DESC',
+        'no_found_rows' => true,
+        'update_post_meta_cache' => false,
+        'update_post_term_cache' => false,
     ));
 
     $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
@@ -282,6 +334,9 @@ function tk_output_lodges_sitemap()
         'posts_per_page' => -1,
         'orderby' => 'modified',
         'order' => 'DESC',
+        'no_found_rows' => true,
+        'update_post_meta_cache' => false,
+        'update_post_term_cache' => false,
     ));
 
     $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
@@ -378,12 +433,20 @@ function tk_ping_search_engines($post_id)
         return;
     }
 
-    // Ping Google (they handle Bing too via IndexNow)
-    $sitemap_url = home_url('/sitemap.xml');
-    wp_remote_get('https://www.google.com/ping?sitemap=' . urlencode($sitemap_url), array(
-        'timeout' => 5,
-        'blocking' => false,
-    ));
+    /*
+     * Google retired https://www.google.com/ping?sitemap= in June 2023; it
+     * now returns 404, so the request that used to live here accomplished
+     * nothing but an outbound HTTP call on every save. The comment beside it
+     * also claimed Google forwards to Bing via IndexNow, which is not true --
+     * IndexNow is a separate protocol Google does not participate in.
+     *
+     * Sitemaps are discovered from robots.txt (see tk_robots_txt below) and
+     * from Search Console. Nothing needs to be pinged.
+     *
+     * If you do want push notification, submit to IndexNow directly at
+     * https://api.indexnow.org/indexnow with a key file hosted on the domain.
+     */
+    do_action('tk_content_published', $post_id, $post_type);
 }
 add_action('save_post', 'tk_ping_search_engines');
 
