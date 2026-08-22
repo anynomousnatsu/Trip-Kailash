@@ -1378,11 +1378,13 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.16em;
-  color: var(--tk-vishnu);
+  /* 4.64:1 on --tk-bg-main. See --tk-vishnu-text in variables.css. */
+  color: var(--tk-vishnu-text);
 }
 
 .tk-package-card--featured:hover .tk-package-card__cta-text {
-  color: #b46a1b;
+  /* Hover must stay above 4.5:1 too; #8F3D0A measures 6.62:1. */
+  color: #8F3D0A;
 }
 
 .tk-featured-packages__view-all {
@@ -2402,10 +2404,19 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: url('../images/nepal-map.svg');
+  /*
+   * The decorative texture here pointed at ../images/nepal-map.svg, which has
+   * never shipped with the theme, so every page load fetched a 404 for a layer
+   * rendered at 5% opacity. Replaced with a CSS gradient so the footer keeps a
+   * subtle sense of depth with no network request.
+   *
+   * To restore the artwork, drop a real nepal-map.svg into assets/images/ and
+   * swap the background below back to url('../images/nepal-map.svg').
+   */
+  background-image: radial-gradient(circle at 50% 120%, #F5F2ED 0%, transparent 60%);
   background-size: cover;
   background-position: center;
-  opacity: 0.05;
+  opacity: 0.06;
   z-index: 0;
 }
 

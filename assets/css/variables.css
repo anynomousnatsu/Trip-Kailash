@@ -18,6 +18,18 @@
   --tk-vishnu: #E67E22;
   --tk-devi: #8B1538;
 
+  /*
+   * Text-safe variant of the Vishnu orange.
+   *
+   * --tk-vishnu (#E67E22) is a brand colour and reads well on the dark deity
+   * artwork, but as text on --tk-bg-main (#F5F2ED) it measures 2.55:1, well
+   * under the 4.5:1 WCAG AA needs for body-sized text. #C2410C is the same
+   * burnt-orange family at 4.64:1. Use --tk-vishnu for fills and artwork,
+   * --tk-vishnu-text whenever the colour carries actual words on a light
+   * background.
+   */
+  --tk-vishnu-text: #C2410C;
+
   /* ============================================
      TYPOGRAPHY
      ============================================ */

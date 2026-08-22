@@ -112,18 +112,21 @@ class Contact_Form extends Widget_Base
                 </div>
 
                 <div class="tk-form-group">
-                    <input type="text" name="name" class="tk-form-input" placeholder="<?php _e('Your Name', 'trip-kailash'); ?>"
-                        required>
+                    <label class="tk-form-label" for="tk-contact-name"><?php esc_html_e('Your Name', 'trip-kailash'); ?></label>
+                    <input type="text" name="name" id="tk-contact-name" class="tk-form-input" autocomplete="name"
+                        placeholder="<?php esc_attr_e('Your Name', 'trip-kailash'); ?>" required>
                 </div>
 
                 <div class="tk-form-group">
-                    <input type="email" name="email" class="tk-form-input"
-                        placeholder="<?php _e('Your Email', 'trip-kailash'); ?>" required>
+                    <label class="tk-form-label" for="tk-contact-email"><?php esc_html_e('Your Email', 'trip-kailash'); ?></label>
+                    <input type="email" name="email" id="tk-contact-email" class="tk-form-input" autocomplete="email"
+                        placeholder="<?php esc_attr_e('Your Email', 'trip-kailash'); ?>" required>
                 </div>
 
                 <div class="tk-form-group">
+                    <label class="tk-form-label" for="tk-package-interest"><?php esc_html_e('Package of Interest', 'trip-kailash'); ?></label>
                     <select name="package_interest" id="tk-package-interest" class="tk-form-select">
-                        <option value=""><?php _e('Select Package (Optional)', 'trip-kailash'); ?></option>
+                        <option value=""><?php esc_html_e('Select Package (Optional)', 'trip-kailash'); ?></option>
                         <?php foreach ($package_options as $package_title): ?>
                             <option value="<?php echo esc_attr($package_title); ?>">
                                 <?php echo esc_html($package_title); ?>
@@ -133,18 +136,21 @@ class Contact_Form extends Widget_Base
                 </div>
 
                 <div class="tk-form-group">
-                    <input type="text" name="travel_month" class="tk-form-input"
-                        placeholder="<?php _e('Preferred Travel Month', 'trip-kailash'); ?>">
+                    <label class="tk-form-label" for="tk-travel-month"><?php esc_html_e('Preferred Travel Month', 'trip-kailash'); ?></label>
+                    <input type="text" name="travel_month" id="tk-travel-month" class="tk-form-input"
+                        placeholder="<?php esc_attr_e('Preferred Travel Month', 'trip-kailash'); ?>">
                 </div>
 
                 <div class="tk-form-group">
-                    <input type="number" name="group_size" class="tk-form-input"
-                        placeholder="<?php _e('Group Size', 'trip-kailash'); ?>" min="1">
+                    <label class="tk-form-label" for="tk-group-size"><?php esc_html_e('Group Size', 'trip-kailash'); ?></label>
+                    <input type="number" name="group_size" id="tk-group-size" class="tk-form-input"
+                        placeholder="<?php esc_attr_e('Group Size', 'trip-kailash'); ?>" min="1">
                 </div>
 
                 <div class="tk-form-group">
-                    <textarea name="message" class="tk-form-textarea" placeholder="<?php _e('Your Message', 'trip-kailash'); ?>"
-                        rows="5"></textarea>
+                    <label class="tk-form-label" for="tk-contact-message"><?php esc_html_e('Your Message', 'trip-kailash'); ?></label>
+                    <textarea name="message" id="tk-contact-message" class="tk-form-textarea"
+                        placeholder="<?php esc_attr_e('Your Message', 'trip-kailash'); ?>" rows="5"></textarea>
                 </div>
 
                 <button type="submit" class="tk-btn tk-btn-gold">

@@ -97,7 +97,7 @@ class Package_Card extends Widget_Base {
         // Get featured image
         $featured_image = get_the_post_thumbnail_url($package_id, 'large');
         if (!$featured_image) {
-            $featured_image = get_template_directory_uri() . '/assets/images/placeholder.jpg';
+            $featured_image = get_template_directory_uri() . '/assets/images/placeholder.svg';
         }
 
         // Ensure key_stops is an array

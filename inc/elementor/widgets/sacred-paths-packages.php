@@ -155,7 +155,7 @@ class Sacred_Paths_Packages extends Widget_Base {
 
         $featured_image = get_the_post_thumbnail_url( $package_id, 'large' );
         if ( ! $featured_image ) {
-            $featured_image = get_template_directory_uri() . '/assets/images/placeholder.jpg';
+            $featured_image = get_template_directory_uri() . '/assets/images/placeholder.svg';
         }
 
         if ( ! is_array( $key_stops ) ) {

@@ -104,7 +104,7 @@ class Guides extends Widget_Base {
         
         $photo = get_the_post_thumbnail_url($guide_id, 'medium');
         if (!$photo) {
-            $photo = get_template_directory_uri() . '/assets/images/placeholder.jpg';
+            $photo = get_template_directory_uri() . '/assets/images/placeholder.svg';
         }
 
         ?>
