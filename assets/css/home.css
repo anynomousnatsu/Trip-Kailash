@@ -1220,3 +1220,122 @@
   line-height: 1.35;
   color: var(--text-heading);
 }
+
+/* ======================================================================
+   THE PARIKRAMA LINE
+
+   The signature element. One brass hairline the length of the page, drawn
+   by scroll, with a step marker at each section. It is what makes the
+   homepage read as one continuous walk instead of stacked sections, and it
+   is the system's one ornament doing real work: every marker is a link.
+
+   Wide screens only. On anything narrower the gutter belongs to the
+   content, and an ornament that crowds the text is not an ornament.
+   ====================================================================== */
+
+.tk-line {
+  position: fixed;
+  left: 28px;
+  top: 14vh;
+  bottom: 14vh;
+  width: 12px;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.tk-line[hidden] { display: none; }
+
+.tk-line__track,
+.tk-line__drawn {
+  position: absolute;
+  left: 5px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+
+.tk-line__track { background: var(--hair); }
+
+.tk-line__drawn {
+  background: var(--brass-500);
+  transform-origin: top center;
+  transform: scaleY(0);
+}
+
+/* The step marker: the rotated square from the brass rule, now walking down
+   the page. Pointer events come back on for the links themselves. */
+.tk-line__mark {
+  position: absolute;
+  left: 0;
+  display: block;
+  width: 11px;
+  height: 11px;
+  margin-top: -5px;
+  pointer-events: auto;
+  text-decoration: none;
+}
+
+.tk-line__dot {
+  display: block;
+  width: 7px;
+  height: 7px;
+  margin: 2px;
+  background: var(--bg-page);
+  border: 1px solid var(--brassline);
+  transform: rotate(45deg);
+  transition: background var(--dur-base) var(--ease),
+              border-color var(--dur-base) var(--ease),
+              transform var(--dur-base) var(--ease);
+}
+
+.tk-line__mark:hover .tk-line__dot,
+.tk-line__mark.is-here .tk-line__dot {
+  background: var(--brass-500);
+  border-color: var(--brass-500);
+  transform: rotate(45deg) scale(1.25);
+}
+
+/* The label rides out on hover and focus only, so the rail stays a hairline
+   until someone asks it a question. */
+.tk-line__name {
+  position: absolute;
+  left: 22px;
+  top: 50%;
+  transform: translateY(-50%) translateX(-6px);
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--brass-600);
+  background: var(--bg-page);
+  padding: 4px 8px;
+  border-radius: var(--r-sm);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-base) var(--ease),
+              transform var(--dur-base) var(--ease);
+}
+
+.tk-line__mark:hover .tk-line__name,
+.tk-line__mark:focus-visible .tk-line__name {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+.tk-line__mark:focus-visible {
+  outline: none;
+  box-shadow: var(--ring-focus);
+  border-radius: var(--r-sm);
+}
+
+/* The rail sits over the night sections, where sand-coloured chrome would
+   disappear. */
+.tk-line__mark .tk-line__dot { will-change: transform; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tk-line__drawn { transform: scaleY(1); }
+  .tk-line__dot,
+  .tk-line__name { transition: none; }
+}

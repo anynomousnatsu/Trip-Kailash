@@ -107,6 +107,24 @@ function trip_kailash_enqueue_assets() {
             TRIP_KAILASH_VERSION,
             true
         );
+
+        // The one interactive moment.
+        wp_enqueue_script(
+            'trip-kailash-kora',
+            TRIP_KAILASH_URI . '/assets/js/kora-ring.js',
+            array(),
+            TRIP_KAILASH_VERSION,
+            true
+        );
+
+        // The signature line, which also navigates.
+        wp_enqueue_script(
+            'trip-kailash-parikrama-line',
+            TRIP_KAILASH_URI . '/assets/js/parikrama-line.js',
+            array(),
+            TRIP_KAILASH_VERSION,
+            true
+        );
     }
 
     // Enqueue JavaScript files
