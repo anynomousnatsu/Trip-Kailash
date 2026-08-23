@@ -90,7 +90,7 @@ Status key: `[ ]` not started · `[~]` in progress · `[x]` done and committed
 
 ## Phase 7 — Ship
 
-- [ ] **7.1** Lint, copy gate, version bump.
+- [x] **7.1** Lint, copy gate, version bump.
 - [ ] **7.2** Upload to Hostinger, purge LiteSpeed.
 - [ ] **7.3** Self-test checklist and speed receipts on the live site.
 
