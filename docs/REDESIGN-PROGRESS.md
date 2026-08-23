@@ -19,9 +19,9 @@ Status key: `[ ]` not started · `[~]` in progress · `[x]` done and committed
       Files: `assets/css/motion.css`
 - [x] **1.4** Reveal JS. IntersectionObserver, staggered children, retired delays, tab pause.
       Files: `assets/js/reveal.js`
-- [ ] **1.5** Environment layer. Fixed brass bloom, vermilion wash, feTurbulence grain.
+- [x] **1.5** Environment layer. Fixed brass bloom, vermilion wash, feTurbulence grain.
       Files: `assets/css/base.css`
-- [ ] **1.6** Enqueue wiring. New handles into the existing dependency chain.
+- [x] **1.6** Enqueue wiring. New handles into the existing dependency chain.
       Files: `inc/enqueue.php`
 
 ## Phase 2 — Data model
