@@ -161,3 +161,41 @@ body:not(.post-type-archive-pilgrimage_package) .elementor > .elementor-section:
   padding-top: 0 !important;
   margin-top: 0 !important;
 }
+
+/* ============================================
+   RESTORE COVER-IMAGE SIZING
+   ============================================ */
+
+/*
+ * Elementor ships `.elementor img { height: auto }` in frontend.min.css.
+ * Every one of the theme's cover-image rules is written as `.some-class img`,
+ * which has identical specificity (0,1,1), so the winner was decided purely
+ * by which stylesheet the browser parsed last -- and Elementor's was always
+ * last. The result: images fell back to their intrinsic aspect ratio inside
+ * fixed-ratio boxes, either leaving a strip of bare container below them or
+ * overflowing and cropping wrong.
+ *
+ * This file is now enqueued with a dependency on elementor-frontend (see
+ * inc/enqueue.php), so it is parsed after Elementor and wins the tie without
+ * needing !important or inflated selectors.
+ *
+ * Audited across assets/css and inc/elementor/widgets: these are every
+ * absolutely-positioned cover image in the theme. Listed explicitly rather
+ * than reset globally, because plenty of images on the page are supposed to
+ * keep their natural height.
+ */
+.tk-card__image img,
+.tk-feature__icon img,
+.tk-guide__photo img,
+.tk-lodge__photo img,
+.tk-overlay__header img,
+.tk-package-gallery__item img,
+.tk-package-card__image img,
+.tk-related-packages__image img,
+.tk-accommodation-card__image img,
+.tk-gallery-item img,
+.tk-sidebar-header__image img,
+.tk-pilgrimage-hero__bg {
+  height: 100%;
+  object-fit: cover;
+}
