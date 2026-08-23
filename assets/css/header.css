@@ -296,3 +296,145 @@
 
 /* Navbar is inside hero-video section but stays fixed on scroll
    Header is already position: fixed, so it will stay at top when scrolling */
+/* ============================================================================
+   REDESIGN
+   Appended last so it wins over the rules above without escalating
+   specificity.
+   ============================================================================ */
+
+.tk-skip {
+  position: absolute;
+  left: 8px;
+  top: -60px;
+  z-index: 100;
+  padding: 12px 18px;
+  background: var(--sand-50);
+  color: var(--bark-900);
+  border: 1px solid var(--brass-500);
+  border-radius: var(--r);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: top var(--dur-fast) var(--ease);
+}
+
+.tk-skip:focus { top: 8px; }
+
+/* Transparent over a hero, solid once past it. header.js decides which by
+   watching the hero rather than by a scroll offset, so it is right whatever
+   height the hero is. */
+.tk-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition: background var(--dur-base) var(--ease),
+              border-color var(--dur-base) var(--ease);
+}
+
+.tk-header.is-solid {
+  background: rgba(14, 9, 4, .93);
+  backdrop-filter: blur(12px);
+  border-bottom-color: var(--hair-on-deep);
+}
+
+.tk-header__container {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding: 16px 24px;
+}
+
+.tk-header__logo { margin-right: auto; }
+.tk-header__logo img { max-height: 44px; width: auto; }
+
+.tk-header__nav .tk-nav-menu {
+  display: flex;
+  gap: 30px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tk-header__nav a {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(245, 237, 223, .84);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.tk-header__nav a:hover,
+.tk-header__nav .current-menu-item > a { color: var(--brass-300); }
+
+.tk-header__btn { padding: 11px 22px; font-size: 12px; }
+
+.tk-mobile-menu-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.tk-mobile-menu-toggle span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--sand-100);
+  transition: transform var(--dur-base) var(--ease),
+              opacity var(--dur-base) var(--ease);
+}
+
+.tk-mobile-menu-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.tk-mobile-menu-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+.tk-mobile-menu-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.tk-mobile-nav {
+  background: rgba(14, 9, 4, .97);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--hair-on-deep);
+  padding: 20px 24px 28px;
+}
+
+.tk-mobile-nav[hidden] { display: none; }
+
+.tk-mobile-nav__menu { list-style: none; margin: 0 0 18px; padding: 0; }
+
+.tk-mobile-nav__menu a {
+  display: block;
+  padding: 14px 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--sand-100);
+  text-decoration: none;
+  border-bottom: 1px solid var(--hair-on-deep);
+}
+
+.tk-mobile-nav__cta { display: block; text-align: center; }
+
+@media (max-width: 900px) {
+  .tk-header__nav,
+  .tk-header__cta { display: none; }
+  .tk-mobile-menu-toggle { display: flex; }
+}
+
+/* On pages with no hero the header needs a ground from the start, or it sits
+   as pale chrome on a pale page. */
+body:not(.home):not(.single-pilgrimage_package) .tk-header { background: rgba(14, 9, 4, .93); }

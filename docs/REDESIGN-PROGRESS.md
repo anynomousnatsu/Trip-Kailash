@@ -84,9 +84,9 @@ Status key: `[ ]` not started · `[~]` in progress · `[x]` done and committed
 
 ## Phase 6 — Shell
 
-- [ ] **6.1** Header: transparent over hero, About and Contact in nav.
-- [ ] **6.2** Footer on night ground with the verification line.
-- [ ] **6.3** Mobile nav and the WhatsApp bar, phones only.
+- [x] **6.1** Header: transparent over hero, About and Contact in nav.
+- [x] **6.2** Footer on night ground with the verification line.
+- [x] **6.3** Mobile nav and the WhatsApp bar, phones only.
 
 ## Phase 7 — Ship
 

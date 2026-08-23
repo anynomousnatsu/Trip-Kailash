@@ -182,3 +182,38 @@ function tk_tradition_geometry($slug)
         $marks[$slug]
     );
 }
+
+/**
+ * The navigation shown when no menu has been assigned.
+ *
+ * The live site's menu carries two links, and the review notes asked for About
+ * and Contact, which exist as pages but were never added to it. A fallback
+ * that lists the site's real pages means the navigation is never poorer than
+ * the site itself, whatever anyone did or did not configure in the admin.
+ *
+ * @return void
+ */
+function tk_default_nav()
+{
+    $links = array(
+        get_post_type_archive_link('pilgrimage_package') => __('Sacred paths', 'trip-kailash'),
+        home_url('/about-us')                            => __('About us', 'trip-kailash'),
+        home_url('/contact-us')                          => __('Contact', 'trip-kailash'),
+    );
+
+    echo '<ul class="tk-nav-menu">';
+
+    foreach ($links as $url => $label) {
+        if (!$url) {
+            continue;
+        }
+
+        printf(
+            '<li class="menu-item"><a href="%s">%s</a></li>',
+            esc_url($url),
+            esc_html($label)
+        );
+    }
+
+    echo '</ul>';
+}

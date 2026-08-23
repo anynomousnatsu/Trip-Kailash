@@ -1,91 +1,124 @@
 <?php
 /**
- * The footer template
+ * The footer
+ *
+ * Night ground, brass links, and the credentials with an invitation to check
+ * them rather than a claim to be trusted.
+ *
+ * Every number reads from the Customizer and is omitted when unset. The old
+ * footer printed "IATA License: TK92456" on every page of the site. IATA
+ * accreditation is for airline ticketing agents, which is not what this
+ * business does, and on a site whose central argument is to go and verify our
+ * registration, one number that does not check out discredits the rest. It is
+ * not reproduced here; if it is genuine it belongs in the Customizer with the
+ * others.
  *
  * @package TripKailash
- * @since 1.0.0
+ * @since 1.1.0
  */
+
+$tk_legal = array(
+    __('Company reg.', 'trip-kailash')     => trim((string) get_theme_mod('tk_company_reg', '')),
+    __('Tourism licence', 'trip-kailash')  => trim((string) get_theme_mod('tk_ntb_number', '')),
+    __('TAAN member', 'trip-kailash')      => trim((string) get_theme_mod('tk_taan_number', '')),
+);
+
+$tk_legal = array_filter($tk_legal);
+$tk_whatsapp = trim((string) get_theme_mod('tk_whatsapp_number', ''));
 ?>
-</div><!-- #page -->
 
-<footer class="tk-footer">
-    <div class="tk-footer__container">
-        <div class="tk-footer__main">
-            <div class="tk-footer__brand">
-                <?php if (function_exists('trip_kailash_site_logo')) {
-                    trip_kailash_site_logo();
-                } ?>
-                <p class="tk-footer__tagline">Pilgrimage journeys in Nepal and Tibet.
-                    The pilgrimage arm of Trekmania Nepal.</p>
-            </div>
+<footer class="tk-footer tk-deep">
+	<div class="tk-wrap">
 
-            <div class="tk-footer__links">
-                <div class="tk-footer__column">
-                    <h4>Sacred Paths</h4>
-                    <ul>
-                        <?php
-                        // Get recent pilgrimage packages
-                        $packages = get_posts(array(
-                            'post_type' => 'pilgrimage_package',
-                            'posts_per_page' => 4,
-                            'post_status' => 'publish',
-                            'orderby' => 'date',
-                            'order' => 'DESC',
-                        ));
+		<div class="tk-footer__grid">
 
-                        if ($packages) {
-                            foreach ($packages as $package) {
-                                ?>
-                                <li><a
-                                        href="<?php echo esc_url(get_permalink($package->ID)); ?>"><?php echo esc_html($package->post_title); ?></a>
-                                </li>
-                                <?php
-                            }
-                        } else {
-                            // Fallback if no packages exist
-                            ?>
-                            <li><a href="<?php echo esc_url(home_url('/packages')); ?>">View All Packages</a></li>
-                            <?php
-                        }
-                        ?>
-                    </ul>
-                </div>
+			<div class="tk-footer__brand">
+				<?php if (function_exists('trip_kailash_site_logo')) { trip_kailash_site_logo(); } ?>
+				<p class="tk-footer__tagline">
+					<?php esc_html_e('Pilgrimage journeys in Nepal and Tibet. The pilgrimage arm of Trekmania Nepal.', 'trip-kailash'); ?>
+				</p>
+			</div>
 
-                <div class="tk-footer__column">
-                    <h4>Connect</h4>
-                    <ul>
-                        <li>Kathmandu, Nepal</li>
-                        <li><a href="tel:+9779860100000">+977 986 0100 0000</a></li>
-                        <li><a href="mailto:namaste@tripkailash.com">namaste@tripkailash.com</a></li>
-                    </ul>
-                    <div class="tk-footer__social">
-                        <a href="https://instagram.com/tripkailash" target="_blank" rel="noopener"
-                            aria-label="Instagram">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                <path
-                                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
-                            </svg>
-                        </a>
-                        <a href="https://wa.me/9779860100000" target="_blank" rel="noopener" aria-label="WhatsApp">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                <path
-                                    d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-                            </svg>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+			<div class="tk-footer__col">
+				<h2 class="tk-footer__head"><?php esc_html_e('Yatras', 'trip-kailash'); ?></h2>
+				<ul class="tk-footer__list">
+					<?php
+					$tk_footer_packages = get_posts(array(
+						'post_type'        => 'pilgrimage_package',
+						'post_status'      => 'publish',
+						'numberposts'      => 6,
+						'orderby'          => 'menu_order',
+						'order'            => 'ASC',
+						'suppress_filters' => false,
+					));
 
-        <div class="tk-footer__bottom">
-            <p>&copy; <?php echo wp_date('Y'); ?> Trip Kailash. All rights reserved. IATA License: TK92456</p>
-            <div class="tk-footer__legal">
-                <a href="<?php echo esc_url(home_url('/privacy-policy')); ?>">Privacy Policy</a>
-                <a href="<?php echo esc_url(home_url('/terms-conditions')); ?>">Terms & Conditions</a>
-            </div>
-        </div>
-    </div>
+					foreach ($tk_footer_packages as $tk_footer_package) :
+						?>
+						<li><a href="<?php echo esc_url(get_permalink($tk_footer_package)); ?>"><?php echo esc_html(get_the_title($tk_footer_package)); ?></a></li>
+					<?php endforeach; ?>
+					<li><a href="<?php echo esc_url(get_post_type_archive_link('pilgrimage_package')); ?>"><?php esc_html_e('All yatras', 'trip-kailash'); ?></a></li>
+				</ul>
+			</div>
+
+			<div class="tk-footer__col">
+				<h2 class="tk-footer__head"><?php esc_html_e('Company', 'trip-kailash'); ?></h2>
+				<ul class="tk-footer__list">
+					<li><a href="<?php echo esc_url(home_url('/about-us')); ?>"><?php esc_html_e('About us', 'trip-kailash'); ?></a></li>
+					<li><a href="<?php echo esc_url(home_url('/contact-us')); ?>"><?php esc_html_e('Contact us', 'trip-kailash'); ?></a></li>
+					<li><a href="<?php echo esc_url(home_url('/#verify')); ?>"><?php esc_html_e('Check our credentials', 'trip-kailash'); ?></a></li>
+					<li><a href="<?php echo esc_url(home_url('/book-yatra')); ?>"><?php esc_html_e('Book a yatra', 'trip-kailash'); ?></a></li>
+				</ul>
+			</div>
+
+			<div class="tk-footer__col">
+				<h2 class="tk-footer__head"><?php esc_html_e('Contact', 'trip-kailash'); ?></h2>
+				<ul class="tk-footer__list">
+					<li><?php esc_html_e('Kathmandu, Nepal', 'trip-kailash'); ?></li>
+					<?php if ($tk_whatsapp) : ?>
+						<li><a href="<?php echo esc_url('https://wa.me/' . preg_replace('/[^0-9]/', '', $tk_whatsapp)); ?>" rel="noopener"><?php esc_html_e('WhatsApp', 'trip-kailash'); ?></a></li>
+					<?php endif; ?>
+					<li><a href="<?php echo esc_url('mailto:' . antispambot(TK_FORM_RECIPIENT)); ?>"><?php echo esc_html(antispambot(TK_FORM_RECIPIENT)); ?></a></li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="tk-footer__bottom">
+			<p class="tk-footer__legal">
+				<?php if ($tk_legal) : ?>
+					<?php
+					$tk_parts = array();
+
+					foreach ($tk_legal as $tk_label => $tk_value) {
+						$tk_parts[] = $tk_label . ' ' . $tk_value;
+					}
+
+					echo esc_html(implode(' · ', $tk_parts));
+					?>
+					<a class="tk-footer__verify" href="<?php echo esc_url(home_url('/#verify')); ?>"><?php esc_html_e('Verify all of these', 'trip-kailash'); ?></a>
+				<?php endif; ?>
+			</p>
+
+			<p class="tk-footer__copy">
+				<?php
+				printf(
+					/* translators: %s: current year. */
+					esc_html__('Copyright %s Trip Kailash', 'trip-kailash'),
+					esc_html(wp_date('Y'))
+				);
+				?>
+			</p>
+		</div>
+	</div>
 </footer>
+
+<?php if ($tk_whatsapp) : ?>
+	<?php /* Phones only. It is standard for this market and it works, but on a
+	         desktop it fights the calm the rest of the page is built on. */ ?>
+	<a class="tk-whatsapp-bar" rel="noopener"
+		href="<?php echo esc_url('https://wa.me/' . preg_replace('/[^0-9]/', '', $tk_whatsapp)); ?>">
+		<?php esc_html_e('Ask us on WhatsApp', 'trip-kailash'); ?>
+	</a>
+<?php endif; ?>
 
 <?php wp_footer(); ?>
 </body>
