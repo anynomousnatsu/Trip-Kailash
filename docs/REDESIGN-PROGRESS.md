@@ -73,7 +73,7 @@ Status key: `[ ]` not started · `[~]` in progress · `[x]` done and committed
 - [x] **4.1** `single-pilgrimage_package.php` driven by fields.
 - [x] **4.2** Sticky reserve panel with the money explainer and trust cluster.
 - [x] **4.3** Spec strip, itinerary accordion, inclusions, season bar.
-- [ ] **4.4** `TouristTrip` schema generated from fields.
+- [x] **4.4** `TouristTrip` schema generated from fields.
       Files: `inc/schema.php`
 
 ## Phase 5 — Catalogue
