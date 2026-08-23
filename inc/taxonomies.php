@@ -245,3 +245,49 @@ function tk_seed_catalogue_terms()
     update_option('tk_taxonomy_seed_version', TK_TAXONOMY_SEED_VERSION);
 }
 add_action('init', 'tk_seed_catalogue_terms', 5);
+
+/**
+ * Filter the package archive by tradition from the query string.
+ *
+ * The filters are real links rather than JavaScript tabs, so the archive has
+ * to honour ?tradition= itself. That is what makes a filtered view shareable,
+ * bookmarkable, crawlable, and usable on a connection too poor to run a
+ * script.
+ *
+ * Guarded on the main front-end query so it cannot reach into the admin, a
+ * feed, or any secondary loop a widget happens to run.
+ *
+ * @param WP_Query $query
+ * @return void
+ */
+function tk_filter_packages_by_tradition($query)
+{
+    if (is_admin() || !$query->is_main_query()) {
+        return;
+    }
+
+    if (!$query->is_post_type_archive('pilgrimage_package')) {
+        return;
+    }
+
+    // phpcs:ignore WordPress.Security.NonceVerification -- reading a public query arg.
+    if (empty($_GET['tradition'])) {
+        return;
+    }
+
+    // phpcs:ignore WordPress.Security.NonceVerification
+    $slug = sanitize_key(wp_unslash($_GET['tradition']));
+
+    if (!term_exists($slug, 'tradition')) {
+        return;
+    }
+
+    $query->set('tax_query', array(
+        array(
+            'taxonomy' => 'tradition',
+            'field'    => 'slug',
+            'terms'    => $slug,
+        ),
+    ));
+}
+add_action('pre_get_posts', 'tk_filter_packages_by_tradition');

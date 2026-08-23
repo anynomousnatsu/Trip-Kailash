@@ -78,8 +78,8 @@ Status key: `[ ]` not started · `[~]` in progress · `[x]` done and committed
 
 ## Phase 5 — Catalogue
 
-- [ ] **5.1** Move `archive-pilgrimage_package.php` to theme root and rebuild.
-- [ ] **5.2** Package card component. Kills the dark title band from the review shots.
+- [x] **5.1** Move `archive-pilgrimage_package.php` to theme root and rebuild.
+- [x] **5.2** Package card component. Kills the dark title band from the review shots.
 - [ ] **5.3** Sacred Paths page with tradition filtering.
 
 ## Phase 6 — Shell

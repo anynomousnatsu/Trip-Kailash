@@ -131,6 +131,20 @@ function trip_kailash_enqueue_assets() {
      * Package page assets, on single packages only. The template renders
      * entirely from fields, so none of this is needed anywhere else.
      */
+    /* The catalogue: the archive, its taxonomy listings, and the Sacred Paths
+       page, which all render the same cards. */
+    if ( is_post_type_archive( 'pilgrimage_package' )
+        || is_tax( array( 'tradition', 'region', 'style', 'deity' ) )
+        || is_page_template( 'page-sacred-paths.php' ) ) {
+        wp_enqueue_style(
+            'trip-kailash-catalogue',
+            TRIP_KAILASH_URI . '/assets/css/catalogue.css',
+            array( 'trip-kailash-seo' ),
+            TRIP_KAILASH_VERSION,
+            'all'
+        );
+    }
+
     if ( is_singular( 'pilgrimage_package' ) ) {
         wp_enqueue_style(
             'trip-kailash-package',
