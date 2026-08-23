@@ -137,3 +137,47 @@ Status key: `[ ]` not started · `[~]` in progress · `[x]` done and committed
   a half-built theme on production breaks the site.
 - **Blockers** from `docs/design-package.md` section 10 gate the sections that need them.
   Placeholders are marked `[NUMBER]` in the templates and must not ship as-is.
+
+---
+
+## Deploy day, 24 Aug 2026
+
+The theme uploaded fine, but the homepage still rendered the old Elementor
+layout. Colours and fonts changed, nothing else did.
+
+**Cause.** The homepage (page 11) had Elementor's own page template assigned,
+`elementor_header_footer`, stored in `_wp_page_template`. Elementor hooks
+`template_include` late and returns its own template, which beats
+`front-page.php` outright. The theme was loading, the enqueue conditionals
+were matching, `home.css` was on the page. The template just never ran.
+
+**Fix.** Set page 11's `_wp_page_template` to `default`. No code change.
+
+**Worth knowing:** if the homepage ever reverts, check that field first.
+Editing the page in Elementor can set it back.
+
+With that done the homepage renders the new design, and the tradition doors
+appeared once terms were assigned, since the theme was finally on the server
+to register the taxonomy.
+
+### Also found on deploy day
+
+A real bug in `assets/js/package.js`. Group pricing tiers are the per-person
+rates by party size and the headline `price_from` is the marketing figure,
+normally the LARGEST group's rate. Gosaikunda runs $650 for one pilgrim down
+to $350 for ten. The old logic started at the headline price and only ever
+moved lower, so it quoted a solo pilgrim the ten-person rate. Fixed, and the
+per-person rate is now disclosed whenever it differs from the headline in
+either direction.
+
+Gosaikunda's max altitude corrected from 4,600 m to 4,380 m. 4,380 is the
+lake, which is where this trek actually tops out; 4,600 is the Laurebina pass,
+which this itinerary does not cross.
+
+### Still open
+
+- Itineraries for Haleshi Maratika, Shiva Divine Yatra, Kedarnath and the
+  Gosaikunda helicopter package. Muktinath, Gosaikunda and Kailash are done.
+- Customizer credentials, which is why the verification section does not
+  render yet.
+- The Gosaikunda helicopter duration and price question.
