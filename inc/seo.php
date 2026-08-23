@@ -1063,3 +1063,72 @@ function tk_geo_meta_tags()
     echo '<meta name="geo.position" content="28.6139;77.2090" />' . "\n";
 }
 add_action('wp_head', 'tk_geo_meta_tags', 3);
+
+/**
+ * Carry the old deity URLs over to the tradition taxonomy.
+ *
+ * The catalogue used to be filtered by deity, so the live site has indexed
+ * URLs like /sacred-paths/?deity=shiva and /deity/shiva/. Reorganising by
+ * tradition would leave every one of those either 404ing or, worse, silently
+ * showing an unfiltered list, which reads as a broken filter.
+ *
+ * Deity and tradition are not the same idea, which is the point of the move.
+ * Devi maps to Shakta, and Shiva maps to Shaiva, but tradition is
+ * multi-select because a place can belong to more than one faith at once:
+ * Muktinath is Vaishnava and Buddhist, and Kailash is sacred to four. The
+ * mapping below is only for redirecting old links; it is not how packages are
+ * classified.
+ *
+ * @return array<string,string>
+ */
+function tk_deity_to_tradition_map()
+{
+    return array(
+        'shiva'  => 'shaiva',
+        'vishnu' => 'vaishnava',
+        'devi'   => 'shakta',
+    );
+}
+
+/**
+ * 301 the old deity query string and term archives to their tradition equivalents.
+ *
+ * @return void
+ */
+function tk_redirect_deity_urls()
+{
+    if (is_admin()) {
+        return;
+    }
+
+    $map = tk_deity_to_tradition_map();
+
+    // /sacred-paths/?deity=shiva  ->  /sacred-paths/?tradition=shaiva
+    // phpcs:ignore WordPress.Security.NonceVerification -- reading a public query arg.
+    if (isset($_GET['deity'])) {
+        $deity = sanitize_key(wp_unslash($_GET['deity']));
+
+        if (isset($map[$deity])) {
+            $target = remove_query_arg('deity');
+            $target = add_query_arg('tradition', $map[$deity], $target);
+
+            wp_safe_redirect(home_url($target), 301);
+            exit;
+        }
+    }
+
+    // /deity/shiva/  ->  /tradition/shaiva/
+    if (is_tax('deity')) {
+        $term = get_queried_object();
+
+        if ($term && isset($map[$term->slug])) {
+            $tradition = get_term_by('slug', $map[$term->slug], 'tradition');
+
+            if ($tradition && !is_wp_error($tradition)) {
+                wp_safe_redirect(get_term_link($tradition), 301);
+                exit;
+            }
+        }
+    }
+}
+add_action('template_redirect', 'tk_redirect_deity_urls', 1);

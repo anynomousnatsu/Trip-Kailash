@@ -32,7 +32,7 @@ Status key: `[ ]` not started · `[~]` in progress · `[x]` done and committed
       Files: `inc/custom-post-types.php`
 - [x] **2.3** Admin UI for the new fields, including itinerary and departure repeaters.
       Files: `inc/custom-post-types.php`, `assets/js/admin-repeater.js`
-- [ ] **2.4** `?deity=` to `?tradition=` migration with 301s.
+- [x] **2.4** `?deity=` to `?tradition=` migration with 301s.
       Files: `inc/seo.php`
 - [ ] **2.5** Content migration over MCP: fix the drift, rename Haleshi, add missing packages.
       Files: none, live content

@@ -188,7 +188,7 @@ add_action('init', 'tk_register_catalogue_taxonomies', 0);
  * Bumping TK_TAXONOMY_SEED_VERSION re-runs the seed, which is how new terms
  * get added later without anyone touching the database by hand.
  */
-define('TK_TAXONOMY_SEED_VERSION', 1);
+define('TK_TAXONOMY_SEED_VERSION', 2);
 
 function tk_seed_catalogue_terms()
 {
@@ -197,13 +197,17 @@ function tk_seed_catalogue_terms()
     }
 
     $seed = array(
-        // Counts across the seven live packages come out Shaiva 5, Buddhist 3,
-        // Vaishnava 1. That weighting is a positioning asset, not something to
-        // apologise for: Nepal's Shiva pilgrimage specialists is sharper than
-        // pretending to cover everything.
+        // Shakta is here because the site already runs a Devi track and the
+        // catalogue is gaining Pathibhara and Manakamana, both Devi sites. The
+        // brief listed five traditions and missed it.
+        //
+        // The Shaiva weighting that falls out of the seven live packages is a
+        // positioning asset, not something to apologise for: Nepal's Shiva
+        // pilgrimage specialists is sharper than pretending to cover everything.
         'tradition' => array(
             'shaiva'    => 'Shaiva',
             'vaishnava' => 'Vaishnava',
+            'shakta'    => 'Shakta',
             'buddhist'  => 'Buddhist',
             'jain'      => 'Jain',
             'bon'       => 'Bön',
