@@ -15,8 +15,8 @@
                 <?php if (function_exists('trip_kailash_site_logo')) {
                     trip_kailash_site_logo();
                 } ?>
-                <p class="tk-footer__tagline">Sacred luxury pilgrimages guided by devotion, elevated by comfort: Walk
-                    the path of gods with us.</p>
+                <p class="tk-footer__tagline">Pilgrimage journeys in Nepal and Tibet.
+                    The pilgrimage arm of Trekmania Nepal.</p>
             </div>
 
             <div class="tk-footer__links">

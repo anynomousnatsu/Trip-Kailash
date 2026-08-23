@@ -2,7 +2,7 @@
 /**
  * Pilgrimage package fields
  *
- * The highest-leverage change in the redesign. Every spec on a package page
+ * The change everything else in the redesign depends on. Every spec on a page
  * used to be typed into an Elementor widget as layout text, which meant
  * nothing could be filtered, sorted, compared or turned into schema, and each
  * new package was a page rebuild. It also let the data drift: one package
