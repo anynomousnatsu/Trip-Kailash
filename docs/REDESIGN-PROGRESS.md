@@ -181,3 +181,45 @@ which this itinerary does not cross.
 - Customizer credentials, which is why the verification section does not
   render yet.
 - The Gosaikunda helicopter duration and price question.
+
+
+## The deploy is correct and the site still looks unchanged
+
+There are THREE caches in front of this site, not one. Purging LiteSpeed
+alone does nothing to the other two.
+
+1. **LiteSpeed** (the WordPress plugin) — purged from the WP admin bar.
+2. **hcdn, Hostinger's own edge CDN** — purged from hPanel, a completely
+   separate control. Responses carry `Server: hcdn` and
+   `x-hcdn-cache-status: HIT`, and the edge node is regional, so two people
+   in different countries can be served different versions of the same page.
+3. **The visitor's browser**, which honours `stale-while-revalidate` on
+   navigation.
+
+### How to tell which one is lying to you
+
+    curl -sSI https://tripkailash.com/ | grep -iE 'x-hcdn-cache-status|age:'
+
+`HIT` with a non-zero `Age` means you are looking at the edge cache, not the
+site. To see what the server actually renders, use a URL nobody has requested
+before, which is a different cache key all the way down:
+
+    curl -sS 'https://tripkailash.com/?bust=12345' | grep -o '<h1[^>]*>[^<]*'
+
+If those two disagree, the deploy worked and a cache is stale. Purge hcdn in
+hPanel.
+
+### Why this was worth a whole debugging session
+
+`stale-while-revalidate=86400` let every layer serve a day-old copy of the
+HTML while the CSS on that page updated normally, because assets are fetched
+by URL and `?ver=` had changed. The result renders the OLD template with the
+NEW design tokens, which presents as "only the colours and fonts changed".
+
+Every check a developer runs defeats it. curl has no cache entry, a hard
+refresh bypasses the browser layer, and any `?query=` URL is a different key
+at the edge. All three return the correct page while the person reporting the
+bug keeps seeing the old one.
+
+That is now capped at a minute, and `bin/check-cache-headers.py` fails the
+build if it goes back above five.
