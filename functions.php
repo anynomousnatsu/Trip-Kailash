@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define theme constants
-define('TRIP_KAILASH_VERSION', '1.0.6');
+define('TRIP_KAILASH_VERSION', '1.1.0');
 define('TRIP_KAILASH_DIR', get_template_directory());
 define('TRIP_KAILASH_URI', get_template_directory_uri());
 
@@ -73,6 +73,10 @@ add_action('after_setup_theme', 'trip_kailash_setup');
 require_once TRIP_KAILASH_DIR . '/inc/helpers.php';
 require_once TRIP_KAILASH_DIR . '/inc/enqueue.php';
 require_once TRIP_KAILASH_DIR . '/inc/custom-post-types.php';
+require_once TRIP_KAILASH_DIR . '/inc/package-fields.php';
+require_once TRIP_KAILASH_DIR . '/inc/package-admin.php';
+require_once TRIP_KAILASH_DIR . '/inc/template-tags.php';
+require_once TRIP_KAILASH_DIR . '/inc/customizer.php';
 require_once TRIP_KAILASH_DIR . '/inc/taxonomies.php';
 require_once TRIP_KAILASH_DIR . '/inc/rest-api.php';
 require_once TRIP_KAILASH_DIR . '/inc/form-handler.php';

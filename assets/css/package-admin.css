@@ -1,0 +1,91 @@
+/**
+ * Package edit screen.
+ *
+ * Deliberately plain. This is a data-entry surface, and the person using it
+ * is filling in twenty-eight fields, so legibility and hit targets matter
+ * more than styling.
+ */
+
+.tk-fields { margin: 6px 0 0; }
+
+.tk-field {
+  margin: 0 0 18px;
+  padding: 0 0 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.tk-field:last-child { border-bottom: 0; }
+
+.tk-field > label { display: block; margin-bottom: 5px; }
+
+.tk-field .description {
+  display: block;
+  margin-top: 5px;
+  max-width: 68ch;
+  color: #646970;
+}
+
+/* Twelve-month bar */
+.tk-months {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  margin-top: 4px;
+}
+
+.tk-month {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 72px;
+}
+
+/* Repeaters */
+.tk-repeater { display: block; margin-top: 6px; }
+
+.tk-repeater__rows { display: block; }
+
+.tk-repeater__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 10px;
+  padding: 12px 14px;
+  background: #f6f7f7;
+  border: 1px solid #dcdcde;
+  border-radius: 3px;
+}
+
+.tk-repeater__cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1 1 150px;
+  min-width: 0;
+}
+
+/* The prose cells in an itinerary row need the whole width, or the day body
+   ends up a 150px sliver next to six other inputs. */
+.tk-repeater__cell:has(textarea) { flex: 1 1 100%; }
+
+.tk-repeater__cell > span {
+  font-size: 12px;
+  font-weight: 600;
+  color: #50575e;
+}
+
+.tk-repeater__cell input,
+.tk-repeater__cell textarea { width: 100%; }
+
+.tk-repeater__remove {
+  flex: 0 0 auto;
+  color: #b32d2e;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  text-decoration: none;
+  padding: 4px 8px;
+}
+
+.tk-repeater__remove:hover { color: #8a2424; }

@@ -1,89 +1,201 @@
 /**
- * Trip Kailash Theme - CSS Variables
- * Design System Variables for consistent styling
+ * Trip Kailash design tokens
+ * Direction: sandalwood and brass, with a temple-night ground for the
+ * cinematic sections. Full rationale in docs/design-package.md section 2.
+ *
+ * Two blocks below. The first is the real system. The second re-points every
+ * legacy token name at it, so the 3,500 lines of existing component CSS shift
+ * onto the new palette without being rewritten. New code uses the real names.
  */
 
 :root {
-  /* ============================================
-     COLOR PALETTE
-     ============================================ */
 
-  /* Base Colors */
-  --tk-bg-main: #F5F2ED;
-  --tk-text-main: #2C2B28;
-  --tk-gold: #B8860B;
+  /* ====================================================================
+     PALETTE
+     Three families. Sandalwood carries surfaces, brass carries structure
+     and ornament, vermilion is reserved for one job. Bark is the ink.
+     ==================================================================== */
 
-  /* Deity Colors */
-  --tk-shiva: #1A1B3A;
-  --tk-vishnu: #E67E22;
-  --tk-devi: #8B1538;
+  /* Sandalwood, the day ground */
+  --sand-50:  #FBF6EC;   /* page ground */
+  --sand-100: #F5EDDF;   /* raised */
+  --sand-200: #EBDFC9;   /* inset */
+  --sand-300: #DCCAA9;   /* dividers */
 
-  /*
-   * Text-safe variant of the Vishnu orange.
-   *
-   * --tk-vishnu (#E67E22) is a brand colour and reads well on the dark deity
-   * artwork, but as text on --tk-bg-main (#F5F2ED) it measures 2.55:1, well
-   * under the 4.5:1 WCAG AA needs for body-sized text. #C2410C is the same
-   * burnt-orange family at 4.64:1. Use --tk-vishnu for fills and artwork,
-   * --tk-vishnu-text whenever the colour carries actual words on a light
-   * background.
-   */
-  --tk-vishnu-text: #C2410C;
+  /* Night, the cinematic canvas. Warm, never pure black. */
+  --night-900: #0E0904;
+  --night-800: #1E1006;
+  --night-700: #33200D;
 
-  /* ============================================
-     TYPOGRAPHY
-     ============================================ */
+  /* Brass, structure and ornament */
+  --brass-300: #E0C489;  /* ornament on dark */
+  --brass-400: #C9A24C;  /* icons on light */
+  --brass-500: #B8860B;  /* rules, focus ring */
+  --brass-600: #8A6408;  /* brass text on sand, passes AA at 16px */
 
-  /* Font Families */
-  --tk-font-heading: "Canela Text", "Times New Roman", Georgia, serif;
-  --tk-font-body: "Suisse International", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* Vermilion, the booking action and nothing else.
+     Sindoor is a mark applied to one spot, not a wash. */
+  --verm-400: #C8593A;   /* hover */
+  --verm-500: #A8452C;   /* THE booking action */
+  --verm-600: #86341F;   /* pressed */
 
-  /* Font Sizes */
-  --tk-font-size-h1: clamp(36px, 5vw, 56px);
-  --tk-font-size-h2: clamp(28px, 4vw, 36px);
-  --tk-font-size-h3: 24px;
-  --tk-font-size-body: 18px;
-  --tk-font-size-small: 16px;
+  /* Bark, the ink */
+  --bark-900: #1E1006;   /* headings */
+  --bark-800: #33200D;   /* body */
+  --bark-500: #75603F;   /* muted, meta */
+  --bark-300: #A9906B;   /* placeholder only, never body */
 
-  /* ============================================
-     SPACING TOKENS
-     ============================================ */
+  /* Grading. Colour always pairs with the word, never colour alone. */
+  --grade-easy:     #5C7A3F;
+  --grade-moderate: #B8860B;
+  --grade-hard:     #A8452C;
 
-  --tk-space-xs: 21px;
-  --tk-space-sm: 34px;
-  --tk-space-md: 55px;
-  --tk-space-lg: 89px;
+  /* Deity accents. Traditional, and kept: Shiva blue, Vishnu saffron,
+     Devi crimson. Artwork colours for the tradition cards, never page
+     furniture. Page furniture uses --surface-deep below. */
+  --deity-shiva:  #1A1B3A;
+  --deity-vishnu: #E67E22;
+  --deity-devi:   #8B1538;
+  --deity-vishnu-text: #C2410C;  /* 4.64:1 on sand; the fill fails as text */
 
-  /* ============================================
-     LAYOUT VARIABLES
-     ============================================ */
+  /* ====================================================================
+     SEMANTIC SURFACES
+     ==================================================================== */
 
-  /* Border Radius */
-  --tk-border-radius: 10px;
-  --tk-border-radius-sm: 8px;
-  --tk-border-radius-lg: 12px;
+  --bg-page:   var(--sand-50);
+  --bg-raised: var(--sand-100);
+  --bg-inset:  var(--sand-200);
+  --bg-card:   #FFFFFF;
 
-  /* Max Width */
-  --tk-max-width: 1400px;
+  /* The deep surface: header, footer, and every cinematic band. This is
+     what replaces the navy. A warm near-black reads as temple night;
+     navy reads as a template. */
+  --surface-deep:   var(--night-900);
+  --surface-deep-2: var(--night-800);
 
-  /* Header Heights */
+  --text-heading: var(--bark-900);
+  --text-body:    var(--bark-800);
+  --text-muted:   var(--bark-500);
+  --text-on-deep: var(--sand-100);
+  --text-on-deep-muted: rgba(245, 237, 223, .66);
+
+  /* Hairlines. Depth comes from these plus sand steps, never shadows. */
+  --hair:      rgba(51, 32, 13, .13);
+  --solid:     rgba(51, 32, 13, .24);
+  --brassline: rgba(184, 134, 11, .42);
+  --hair-on-deep: rgba(224, 196, 137, .18);
+
+  --action:       var(--verm-500);
+  --action-hover: var(--verm-400);
+  --action-press: var(--verm-600);
+  --action-text:  #FFF6F1;
+
+  /* ====================================================================
+     TYPE
+     Cinzel is inscriptional, carved rather than printed, and renders as
+     capitals, so it is slower to read: headings, buttons and small
+     labels only. Karla carries every paragraph. Devanagari is
+     first-class here, not a fallback: rendering Sanskrit terms in a
+     system font reads as carelessness about the tradition.
+     Self-hosted in assets/fonts.
+     ==================================================================== */
+
+  --font-display: "Cinzel", Georgia, "Times New Roman", serif;
+  --font-body:    "Karla", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-deva:    "Noto Serif Devanagari", "Karla", serif;
+
+  --text-xs:   0.75rem;     /* 12, tracked labels */
+  --text-sm:   0.875rem;    /* 14, meta */
+  --text-base: 1.0625rem;   /* 17, body */
+  --text-lg:   clamp(1.125rem, 0.4vw + 1.03rem, 1.25rem);
+  --text-xl:   clamp(1.375rem, 0.8vw + 1.2rem,  1.625rem);
+  --text-2xl:  clamp(1.75rem,  1.4vw + 1.4rem,  2.25rem);
+  --text-3xl:  clamp(2.25rem,  2.6vw + 1.6rem,  3.25rem);
+  --text-4xl:  clamp(2.75rem,  4.2vw + 1.8rem,  4.5rem);   /* hero only */
+
+  --leading-tight: 1.14;
+  --leading-body:  1.68;
+  --tracking-wide: 0.22em;   /* eyebrows and small display labels */
+
+  --measure: 68ch;    /* prose cap, set on the text element not a container */
+  --container: 1180px;
+
+  /* ====================================================================
+     SHAPE
+     Temple architecture is cut stone, not soft plastic. The one curve in
+     the system is the torana arch, and it is drawn rather than rounded.
+     ==================================================================== */
+
+  --r-sm: 2px;
+  --r:    4px;
+  --r-lg: 10px;   /* cards only */
+
+  --ring-focus: 0 0 0 2px var(--sand-50), 0 0 0 4px var(--brass-500);
+
+  /* ====================================================================
+     MOTION. Two curves, used everywhere. Nothing snaps.
+     ==================================================================== */
+
+  --dur-fast: 140ms;
+  --dur-base: 260ms;
+  --dur-slow: 700ms;
+  --ease:     cubic-bezier(.2, 0, .2, 1);
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+
+
+  /* ====================================================================
+     LEGACY ALIASES
+     Every token the existing component CSS already calls, re-pointed at
+     the system above. This is what moves the whole site onto the new
+     palette in one step. Do not use these in new code.
+     ==================================================================== */
+
+  --tk-bg-main:   var(--bg-page);
+  --tk-text-main: var(--text-body);
+  --tk-gold:      var(--brass-500);
+
+  /* Was #1A1B3A navy, doing double duty as both the deity accent and the
+     header/footer background. Split: the deity accent keeps its blue,
+     the page furniture moves to temple night in phase 6. */
+  --tk-shiva:  var(--deity-shiva);
+  --tk-vishnu: var(--deity-vishnu);
+  --tk-devi:   var(--deity-devi);
+  --tk-vishnu-text: var(--deity-vishnu-text);
+
+  --tk-font-heading: var(--font-display);
+  --tk-font-body:    var(--font-body);
+
+  --tk-font-size-h1:    var(--text-3xl);
+  --tk-font-size-h2:    var(--text-2xl);
+  --tk-font-size-h3:    var(--text-xl);
+  --tk-font-size-h4:    var(--text-lg);   /* was never defined; h4 silently fell back */
+  --tk-font-size-body:  var(--text-base);
+  --tk-font-size-small: var(--text-sm);
+
+  --tk-space-xs: 1.25rem;
+  --tk-space-sm: 2rem;
+  --tk-space-md: 3.25rem;
+  --tk-space-lg: 5.5rem;
+
+  --tk-border-radius:    var(--r);
+  --tk-border-radius-sm: var(--r-sm);
+  --tk-border-radius-lg: var(--r-lg);
+
+  --tk-max-width: var(--container);
+
   --tk-header-height: 80px;
-  --tk-header-height-scrolled: 72px;
+  --tk-header-height-scrolled: 68px;
 
-  /* ============================================
-     TRANSITIONS
-     ============================================ */
+  --tk-transition-fast:   var(--dur-fast) var(--ease);
+  --tk-transition-normal: var(--dur-base) var(--ease);
+  --tk-transition-slow:   var(--dur-slow) var(--ease);
 
-  --tk-transition-fast: 0.2s ease;
-  --tk-transition-normal: 0.3s ease;
-  --tk-transition-slow: 0.5s ease;
-
-  /* ============================================
-     SHADOWS
-     ============================================ */
-
-  --tk-shadow-card: 0 4px 20px rgba(44, 43, 40, 0.08);
-  --tk-shadow-card-hover: 0 12px 40px rgba(44, 43, 40, 0.15);
-  --tk-shadow-header: 0 2px 10px rgba(44, 43, 40, 0.05);
-  --tk-shadow-overlay: 0 0 50px rgba(44, 43, 40, 0.3);
+  /* No drop shadows anywhere in this system. Depth is hairlines and sand
+     steps. Shadows on a warm palette turn muddy and are the visual tell
+     of a page-builder site, so the legacy shadow tokens are neutralised
+     here rather than hunted down across 3,500 lines. */
+  --tk-shadow-card:       none;
+  --tk-shadow-card-hover: none;
+  --tk-shadow-header:     none;
+  --tk-shadow-overlay:    none;
 }

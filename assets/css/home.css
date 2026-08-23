@@ -1,0 +1,1341 @@
+/**
+ * Trip Kailash homepage
+ *
+ * Loaded on the front page only. Section-specific rules live here; anything
+ * reusable belongs in components.css.
+ *
+ * The running order is in front-page.php. Section rhythm is set once, at the
+ * top of this file, rather than per section, because inconsistent vertical
+ * spacing between sections is the single most common way a page stops looking
+ * designed.
+ */
+
+/* ======================================================================
+   RHYTHM AND CONTAINER
+   ====================================================================== */
+
+.tk-home { display: block; }
+
+.tk-wrap {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+
+.tk-section { padding-block: 88px; }
+
+@media (min-width: 900px) {
+  .tk-section { padding-block: 128px; }
+}
+
+/* ======================================================================
+   SECTION HEADING
+   Eyebrow, display heading, brass rule. The rule is the one ornament in
+   the system and it draws itself; the motion lives in motion.css.
+   ====================================================================== */
+
+.tk-sechead { margin-bottom: 44px; }
+
+.tk-sechead--center {
+  text-align: center;
+  max-width: 62ch;
+  margin-inline: auto;
+}
+
+.tk-sechead--center .tk-rule {
+  max-width: 120px;
+  margin-inline: auto;
+}
+
+.tk-eyebrow {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--brass-600);
+  margin: 0 0 14px;
+}
+
+.tk-deep .tk-eyebrow { color: var(--brass-300); }
+
+.tk-sechead__title {
+  font-size: var(--text-2xl);
+  max-width: 22ch;
+  margin: 0;
+}
+
+.tk-sechead--center .tk-sechead__title {
+  max-width: none;
+  margin-inline: auto;
+}
+
+/* ======================================================================
+   BUTTONS
+   Vermilion is the booking action and nothing else. Everything else that
+   is clickable and not booking takes the ghost.
+   ====================================================================== */
+
+.tk-btn,
+.tk-btn-ghost {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease),
+              color var(--dur-fast) var(--ease);
+}
+
+.tk-btn {
+  background: var(--action);
+  color: var(--action-text);
+  border: 1px solid var(--action);
+  padding: 15px 34px;
+}
+
+.tk-btn:hover { background: var(--action-hover); border-color: var(--action-hover); }
+.tk-btn:active { background: var(--action-press); border-color: var(--action-press); }
+
+.tk-btn-ghost {
+  background: transparent;
+  color: var(--text-body);
+  border: 1px solid var(--solid);
+  padding: 14px 28px;
+}
+
+.tk-btn-ghost:hover { border-color: var(--brass-500); color: var(--brass-600); }
+
+.tk-deep .tk-btn-ghost {
+  color: var(--brass-300);
+  border-color: rgba(224, 196, 137, .5);
+}
+
+.tk-deep .tk-btn-ghost:hover { border-color: var(--brass-300); color: #fff; }
+
+.tk-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 34px;
+}
+
+/* ======================================================================
+   THE HERO
+
+   A tall pinned region with a sticky full-viewport stage inside it. Scroll
+   through the pinned region maps 0 to 1 and drives the video's time, so the
+   page settles exactly as the footage reaches its composed ending.
+
+   Sized in scroll distance, not seconds. A single 6-second shot wants about
+   400vh: under-size it and every caption flashes past no matter how well the
+   bands are tuned.
+   ====================================================================== */
+
+.tk-hero {
+  position: relative;
+  color: var(--sand-100);
+  background: var(--night-900);
+}
+
+.tk-hero__pin { position: relative; height: 400vh; }
+
+.tk-hero__stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.tk-hero__poster,
+.tk-hero__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tk-hero__poster {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Its own compositor layer, so the video's repaints never drag the rest of
+   the page while scrubbing. */
+.tk-hero__video {
+  opacity: 0;
+  will-change: transform;
+  transform: translateZ(0);
+  transition: opacity 420ms var(--ease);
+}
+
+.tk-hero.is-video-ready .tk-hero__video { opacity: 1; }
+
+/* Layer 1 of the legibility system: one soft radial darkening over the whole
+   frame, always on, so no frame is ever raw behind the page. */
+.tk-hero__scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 120% 90% at 50% 45%,
+    rgba(10, 8, 4, 0) 35%, rgba(10, 8, 4, .62) 100%);
+}
+
+/* The loading ring. An honest progress indicator, replaced by a scroll cue if
+   the stream stalls, because a stuck ring is worse than no ring. */
+.tk-hero__ring {
+  position: absolute;
+  right: 28px;
+  bottom: 28px;
+  width: 34px;
+  height: 34px;
+  color: var(--brass-300);
+  opacity: .85;
+  transform: rotate(-90deg);
+  transition: opacity 300ms var(--ease);
+}
+
+.tk-hero.is-video-ready .tk-hero__ring { opacity: 0; }
+
+.tk-hero__licence {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  padding: 16px 0 34px;
+  font-size: 13px;
+  color: rgba(245, 237, 223, .72);
+  border-top: 1px solid rgba(224, 196, 137, .2);
+}
+
+/* ---- The still --------------------------------------------------------
+   A composed layout, not an apology. Hidden while the scrub is armed.
+   ---------------------------------------------------------------------- */
+
+.tk-hero__still {
+  position: relative;
+  z-index: 2;
+  padding-block: 22vh 8vh;
+}
+
+.tk-hero__head {
+  color: #fff;
+  font-size: var(--text-4xl);
+  max-width: 17ch;
+  margin: 0;
+  text-shadow: 0 2px 40px rgba(14, 9, 4, .5);
+}
+
+.tk-hero__sub {
+  margin: 26px 0 0;
+  max-width: 50ch;
+  font-size: 18px;
+  color: rgba(245, 237, 223, .9);
+}
+
+/* In scrub mode the pinned stage carries the journey, so the still is out of
+   the way and out of the accessibility tree. */
+.tk-hero--scrub .tk-hero__still { display: none; }
+
+/* With no clip, the pin collapses and the still is the hero. */
+.tk-hero--still-only .tk-hero__pin { height: auto; }
+.tk-hero--still-only .tk-hero__stage { position: relative; height: auto; min-height: 92vh; }
+.tk-hero--still-only .tk-hero__still { position: absolute; inset: auto 0 0 0; }
+
+/* ---- THE FIVE STATIC-HERO GATES ---------------------------------------
+
+   These five conditions send a visitor to the still instead of the scrub.
+   They are listed here in the SAME ORDER as the GATES array in
+   assets/js/hero-scrub.js and must stay character for character identical,
+   or one side hides what the other side is still loading.
+
+   Commas are OR in a media query list, so this one block is the whole gate.
+
+     1  phones
+     2  portrait tablets
+     3  coarse-pointer portrait
+     4  landscape phones, which pass every width check but have no room
+     5  reduced motion
+
+   Gate 4 exists because a phone held sideways is 800px wide and 400px tall:
+   wide enough to look like a laptop, far too short for a journey.
+   ---------------------------------------------------------------------- */
+
+@media (max-width: 720px),
+       (orientation: portrait) and (max-width: 1024px),
+       (orientation: portrait) and (pointer: coarse),
+       (orientation: landscape) and (pointer: coarse) and (max-height: 560px),
+       (prefers-reduced-motion: reduce) {
+
+  .tk-hero__pin { height: auto; }
+
+  .tk-hero__stage {
+    position: relative;
+    height: auto;
+    min-height: 92vh;
+    align-items: flex-end;
+  }
+
+  .tk-hero__bands,
+  .tk-hero__ring { display: none; }
+
+  .tk-hero--scrub .tk-hero__still { display: block; }
+
+  .tk-hero__still {
+    padding-block: 0 6vh;
+    width: 100%;
+  }
+
+  .tk-hero__head { font-size: clamp(2.1rem, 8vw, 3.1rem); }
+}
+
+/* A scrub-capable screen that is merely short keeps the journey but loses the
+   ring, which has nowhere to sit. */
+@media (max-height: 560px) {
+  .tk-hero__ring { display: none; }
+}
+
+/* ======================================================================
+   CAPTION BANDS
+   Positioned in the footage's negative space. The action lane stays clear
+   and the words flank it. Opacity and the assembly variable --k are written
+   by hero-scrub.js; everything here is transform and opacity only.
+   ====================================================================== */
+
+.tk-hero__bands {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+
+.tk-band {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 14vh;
+  opacity: 0;
+  pointer-events: none;
+  text-shadow:
+    0 1px 2px rgba(5, 4, 2, .95),
+    0 3px 12px rgba(5, 4, 2, .78),
+    0 10px 44px rgba(5, 4, 2, .8);
+}
+
+.tk-band--settle { pointer-events: auto; }
+
+.tk-band__line {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 3.6vw, 3rem);
+  line-height: 1.16;
+  color: #fff;
+  max-width: 20ch;
+  margin: 0;
+}
+
+.tk-band__head {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2rem, 4.6vw, 4rem);
+  line-height: 1.1;
+  color: #fff;
+  max-width: 17ch;
+  margin: 0;
+}
+
+.tk-band__sub {
+  margin: 22px 0 0;
+  max-width: 50ch;
+  font-size: 18px;
+  color: rgba(245, 237, 223, .92);
+}
+
+/* Buttons never carry the band's text shadow. A shadowed label on a solid
+   fill reads as grime. */
+.tk-band .tk-btn,
+.tk-band .tk-btn-ghost { text-shadow: none; }
+
+/* ======================================================================
+   LEGIBILITY, LAYER 2: THE PER-BAND SCRIM
+
+   Live video behind type is a moving background nobody controls frame to
+   frame. Layer 1 is the global scrim on the stage. This is layer 2: each
+   band carries its own radial darkening that rides that band's opacity and
+   deepens with its --k, so the footage dims exactly while that band's words
+   are on and nowhere else.
+
+   Dim, never flatten. The gradient dies out by 76 percent so the corners of
+   the frame stay live and the shot still reads as footage.
+
+   The peak alphas here are starting points. They get tuned against each
+   band's own WORST frame, never its average: the average frame lies, and the
+   worst frame is the one a visitor will be mid-sentence on.
+   ====================================================================== */
+
+.tk-band::before {
+  content: "";
+  position: absolute;
+  inset: -6% -4%;
+  z-index: -1;
+  pointer-events: none;
+  opacity: calc(.25 + .75 * var(--k, 1));
+  background: radial-gradient(ellipse 74% 62% at 30% 50%,
+    rgba(5, 4, 2, .66) 0%,
+    rgba(5, 4, 2, .44) 46%,
+    rgba(5, 4, 2, 0) 76%);
+}
+
+/* The opening beat runs deepest: it carries the largest type over the
+   brightest part of the shot, where first light is finding the rock. */
+.tk-band:first-child::before {
+  background: radial-gradient(ellipse 76% 64% at 30% 50%,
+    rgba(5, 4, 2, .72) 0%,
+    rgba(5, 4, 2, .48) 46%,
+    rgba(5, 4, 2, 0) 76%);
+}
+
+/* The settle spans the full width, so its scrim is centred rather than
+   weighted to the text column. */
+.tk-band--settle::before {
+  background: radial-gradient(ellipse 88% 70% at 50% 56%,
+    rgba(5, 4, 2, .70) 0%,
+    rgba(5, 4, 2, .46) 48%,
+    rgba(5, 4, 2, 0) 78%);
+}
+
+/* ======================================================================
+   LEGIBILITY, LAYER 4: THE CHIP
+
+   Small text over footage does not get the big radial. HUD lines, readouts
+   and labels get a small blurred backing pill instead, because a radial
+   scrim sized for one short line dims half the frame to no purpose.
+   ====================================================================== */
+
+.tk-chip {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: var(--r-lg);
+  background: rgba(8, 6, 3, .55);
+  border: 1px solid rgba(224, 196, 137, .3);
+  backdrop-filter: blur(10px);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--brass-300);
+  text-shadow: 0 1px 3px rgba(5, 4, 2, .85);
+}
+
+/* ======================================================================
+   BAND ENTRANCES
+
+   The echo principle: each beat's entrance does to the words what the
+   footage is doing at that moment, so entrance and footage read as one
+   event rather than as decoration laid over film.
+
+   All of it is transform and opacity only, scrubbed off --k, and fully
+   reversible. Scroll up and they disassemble.
+   ====================================================================== */
+
+.tk-band__line,
+.tk-band__head,
+.tk-band__sub {
+  will-change: transform, opacity;
+}
+
+/* Rise. The opening beat: words lift into place as the light arrives. */
+.tk-band[data-entrance="rise"] .tk-band__line {
+  opacity: var(--k, 1);
+  transform: translateY(calc((1 - var(--k, 1)) * 20px));
+}
+
+/* Drift-down. Echoes the prayer flags moving in the shot: the words fall
+   into place rather than rising into it. */
+.tk-band[data-entrance="drift"] .tk-band__line {
+  opacity: var(--k, 1);
+  transform: translateY(calc((1 - var(--k, 1)) * -24px));
+}
+
+/* Blur-to-sharp, for the beat at the pass where the haze clears. Two stacked
+   copies crossfaded by opacity: the soft copy carries a STATIC blur, because
+   animating filter is not compositor-friendly and stutters. */
+.tk-band[data-entrance="focus"] .tk-band__line {
+  position: relative;
+  opacity: var(--k, 1);
+}
+
+.tk-band[data-entrance="focus"] .tk-band__line::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  filter: blur(10px);
+  opacity: calc(1 - var(--k, 1));
+  pointer-events: none;
+}
+
+/* The settle: three arrivals in one band. The headline lands first, the
+   subline at --k 0.66, the actions at 0.78, so the page comes to rest in
+   sequence rather than all at once. */
+.tk-band--settle .tk-band__head {
+  opacity: var(--k, 1);
+  transform: translateY(calc((1 - var(--k, 1)) * 18px));
+}
+
+.tk-band--settle .tk-band__sub {
+  --ks: clamp(0, (var(--k, 1) - .66) * 4, 1);
+  opacity: var(--ks);
+  transform: translateY(calc((1 - var(--ks)) * 14px));
+}
+
+.tk-band--settle .tk-actions {
+  --kb: clamp(0, (var(--k, 1) - .78) * 5, 1);
+  opacity: var(--kb);
+  transform: translateY(calc((1 - var(--kb)) * 12px));
+}
+
+/* Reduced motion never reaches these, because the whole scrub is gated off,
+   but a browser without clamp() support would leave the settle invisible. */
+@supports not (width: clamp(1px, 1vw, 2px)) {
+  .tk-band--settle .tk-band__sub,
+  .tk-band--settle .tk-actions { opacity: 1; transform: none; }
+}
+
+/* ======================================================================
+   THE TRADITION DOORS
+   ====================================================================== */
+
+.tk-doors {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(248px, 1fr));
+  gap: 22px;
+}
+
+.tk-door {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 38px 30px 30px;
+  text-decoration: none;
+  color: inherit;
+  background: rgba(255, 255, 255, .62);
+  border: 1px solid var(--hair);
+  border-radius: var(--r-lg);
+  transition: border-color var(--dur-base) var(--ease),
+              transform var(--dur-base) var(--ease),
+              background var(--dur-base) var(--ease);
+}
+
+.tk-door:hover {
+  border-color: var(--brassline);
+  background: rgba(255, 255, 255, .86);
+  transform: translateY(-4px);
+}
+
+.tk-door__mark { display: block; margin-bottom: 22px; }
+
+.tk-door__name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 24px;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--text-heading);
+}
+
+.tk-door__deva {
+  font-family: var(--font-deva);
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--brass-600);
+  margin-top: 6px;
+}
+
+.tk-door__blurb {
+  font-size: 15px;
+  color: var(--text-muted);
+  margin-top: 14px;
+  /* Reserved so the counts sit on one line across the row whatever the blurb
+     length. A ragged row of counts is the tell that these were not designed
+     together. */
+  min-height: 4.6em;
+}
+
+.tk-door__count {
+  margin-top: 18px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--brass-600);
+}
+
+/* ---- The drawn marks --------------------------------------------------
+   Each figure draws its own stroke on scroll: the outer line first, the
+   inner one behind it, so the mark assembles rather than appearing. The
+   dash length is generous on purpose, since one value has to cover four
+   different path lengths.
+   ---------------------------------------------------------------------- */
+
+.tk-mark { overflow: visible; }
+
+.tk-mark__a,
+.tk-mark__b {
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  transition: stroke-dashoffset 1100ms var(--ease-out);
+}
+
+.tk-mark__a { stroke: var(--brass-500); stroke-width: 2; }
+.tk-mark__b { stroke: var(--sand-300); stroke-width: 1; transition-delay: 90ms; }
+
+.tk-mark__dot {
+  fill: var(--verm-500);
+  opacity: 0;
+  transform-origin: center;
+  transition: opacity 420ms var(--ease) 520ms;
+}
+
+.tk-door.is-in .tk-mark__a,
+.tk-door.is-in .tk-mark__b { stroke-dashoffset: 0; }
+
+.tk-door.is-in .tk-mark__dot { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tk-mark__a,
+  .tk-mark__b { stroke-dashoffset: 0; }
+  .tk-mark__dot { opacity: 1; }
+}
+
+/* ======================================================================
+   THE PARIKRAMA
+   Night ground, pinned horizontal scroll, the signature section.
+
+   It fades in and out THROUGH the sand rather than butting against it. A
+   hard edge between the day ground and the night ground reads as a stripe,
+   which is exactly what makes a page look like stacked sections.
+   ====================================================================== */
+
+.tk-parikrama {
+  position: relative;
+  background: var(--night-900);
+  color: var(--text-on-deep);
+}
+
+.tk-parikrama::before,
+.tk-parikrama::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 130px;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.tk-parikrama::before {
+  top: 0;
+  background: linear-gradient(180deg, var(--sand-50), rgba(14, 9, 4, 0));
+}
+
+.tk-parikrama::after {
+  bottom: 0;
+  background: linear-gradient(0deg, var(--sand-50), rgba(14, 9, 4, 0));
+}
+
+.tk-parikrama__head {
+  position: relative;
+  z-index: 5;
+  padding-top: 130px;
+}
+
+.tk-parikrama__head .tk-sechead__title { color: #fff; }
+
+.tk-parikrama__foot {
+  position: relative;
+  z-index: 5;
+  padding-bottom: 130px;
+  text-align: center;
+}
+
+/* 520vh of pinned scroll, which gives each of five temples room to arrive,
+   hold and leave without any of them flashing past. */
+.tk-parikrama__pin { position: relative; height: 520vh; }
+
+.tk-parikrama__stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.tk-parikrama__track {
+  display: flex;
+  gap: 44px;
+  padding-inline: 6vw;
+  margin: 0;
+  list-style: none;
+  will-change: transform;
+}
+
+.tk-temple {
+  flex: 0 0 clamp(260px, 32vw, 420px);
+  /* Written by JS per frame; declared here so the first paint is not a jump */
+  filter: blur(0);
+  opacity: 1;
+  transition: filter 350ms var(--ease),
+              opacity 350ms var(--ease),
+              transform 350ms var(--ease);
+}
+
+.tk-temple__link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.tk-temple__frame {
+  display: block;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  border: 1px solid rgba(224, 196, 137, .22);
+  background: var(--night-700);
+}
+
+.tk-temple__img,
+.tk-temple__placeholder {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tk-temple__placeholder {
+  background:
+    repeating-linear-gradient(108deg, rgba(224, 196, 137, .08) 0 2px, transparent 2px 16px),
+    var(--night-700);
+}
+
+.tk-temple__name {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 26px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: #fff;
+  margin-top: 22px;
+}
+
+.tk-temple__traditions {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--brass-300);
+  margin-top: 10px;
+}
+
+/* The meaning and the facts belong to the active temple only. Collapsed by
+   max-height rather than display, so the reveal can ease. */
+.tk-temple__meaning {
+  display: block;
+  font-size: 16px;
+  color: rgba(245, 237, 223, .82);
+  margin-top: 14px;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 450ms var(--ease), opacity 350ms var(--ease);
+}
+
+.tk-temple__facts {
+  display: flex;
+  gap: 18px;
+  font-size: 14px;
+  color: rgba(245, 237, 223, .6);
+  margin-top: 14px;
+  opacity: 0;
+  transition: opacity 350ms var(--ease);
+}
+
+.tk-temple.is-active .tk-temple__meaning { max-height: 14em; opacity: 1; }
+.tk-temple.is-active .tk-temple__facts { opacity: 1; }
+
+/* ---- Phones and reduced motion ----------------------------------------
+
+   Below 900px the pinning is switched off ENTIRELY and the track becomes a
+   native horizontal swipe with scroll-snap. Pinned scroll-jacking on a phone
+   is reliably awful, and most of this traffic is phones.
+
+   The active-temple maths is unchanged: the same centre-proximity function
+   serves both modes, because whichever card is nearest the middle of the
+   screen is the one being looked at either way.
+   ---------------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .tk-parikrama__pin { height: auto; }
+
+  .tk-parikrama__stage {
+    position: static;
+    height: auto;
+    padding-block: 40px;
+    overflow: visible;
+  }
+
+  .tk-parikrama__track {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 24px;
+    padding-inline: 24px;
+    transform: none !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .tk-parikrama__track::-webkit-scrollbar { display: none; }
+
+  .tk-temple {
+    flex-basis: 78vw;
+    scroll-snap-align: center;
+  }
+
+  .tk-parikrama__head { padding-top: 90px; }
+  .tk-parikrama__foot { padding-bottom: 90px; }
+}
+
+/* Reduced motion gets a plain scrollable row with every temple expanded and
+   nothing blurred. Nobody has to move a mouse or a finger to read it. */
+@media (prefers-reduced-motion: reduce) {
+  .tk-parikrama__pin { height: auto; }
+
+  .tk-parikrama__stage {
+    position: static;
+    height: auto;
+    overflow: visible;
+    padding-block: 40px;
+  }
+
+  .tk-parikrama__track {
+    overflow-x: auto;
+    transform: none !important;
+  }
+
+  .tk-temple {
+    filter: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none;
+  }
+
+  .tk-temple__meaning { max-height: 14em; opacity: 1; }
+  .tk-temple__facts { opacity: 1; }
+}
+
+/* ======================================================================
+   THE KORA RING
+   The one interactive moment. Brass, and quiet until it is touched.
+   ====================================================================== */
+
+.tk-kora {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  margin-top: 8px;
+}
+
+.tk-kora__control {
+  position: relative;
+  display: block;
+  width: min(240px, 62vw);
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  /* A hold must not select text or start a scroll gesture underneath it. */
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.tk-kora__ring { display: block; width: 100%; height: 100%; }
+
+.tk-kora__groove {
+  fill: none;
+  stroke: var(--hair);
+  stroke-width: 2;
+}
+
+.tk-kora__path {
+  fill: none;
+  stroke: var(--brass-500);
+  stroke-width: 3;
+  stroke-linecap: round;
+  /* Starts at the top and travels clockwise, the direction the kora is walked
+     in every tradition but Bon. */
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+
+.tk-kora__mark {
+  fill: var(--sand-200);
+  stroke: var(--hair);
+  transition: fill var(--dur-base) var(--ease), r var(--dur-base) var(--ease);
+}
+
+.tk-kora__mark.is-lit { fill: var(--brass-500); stroke: var(--brass-500); }
+
+.tk-kora__centre {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.tk-kora__alt {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2rem, 6vw, 2.75rem);
+  line-height: 1;
+  color: var(--text-heading);
+}
+
+.tk-kora__unit {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--brass-600);
+}
+
+.tk-kora__place {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.tk-kora__readout {
+  margin: 0;
+  min-height: 3.4em;
+  max-width: 42ch;
+  text-align: center;
+  font-size: 16px;
+  color: var(--text-muted);
+  transition: color var(--dur-base) var(--ease);
+}
+
+.tk-kora.is-complete .tk-kora__readout {
+  color: var(--text-heading);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.tk-kora__control:focus-visible {
+  outline: none;
+  border-radius: 50%;
+  box-shadow: var(--ring-focus);
+}
+
+/* ======================================================================
+   DEPARTURES
+   Asymmetric two-column band. Not equal columns: the left one carries the
+   argument, the right one carries the practicalities, and giving them the
+   same width would say they are the same kind of thing.
+   ====================================================================== */
+
+.tk-departures__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 56px;
+}
+
+@media (max-width: 860px) {
+  .tk-departures__grid { grid-template-columns: 1fr; gap: 40px; }
+}
+
+.tk-departures__col { border-left: 2px solid var(--brass-500); padding-left: 24px; }
+
+.tk-departures__title { font-size: var(--text-xl); margin: 0 0 14px; }
+
+.tk-departures__col p { margin: 0 0 14px; max-width: 46ch; }
+
+/* The time-boxed band. Vermilion, because this is the one moment on the page
+   that is genuinely an act-now, and the accent means nothing if it is
+   everywhere. */
+.tk-urgency {
+  margin: 0 0 44px;
+  padding: 18px 22px;
+  max-width: var(--measure);
+  background: var(--bg-inset);
+  border-left: 3px solid var(--verm-500);
+  border-radius: var(--r);
+  font-size: 16px;
+  color: var(--text-heading);
+}
+
+/* ======================================================================
+   HOW A PLACE IS CONFIRMED
+   ====================================================================== */
+
+.tk-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 34px;
+  counter-reset: tk-step;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tk-step { counter-increment: tk-step; }
+
+.tk-step::before {
+  content: counter(tk-step);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  margin-bottom: 18px;
+  border: 1px solid var(--brassline);
+  border-radius: 50%;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--brass-600);
+}
+
+.tk-step__title { font-size: var(--text-lg); margin: 0 0 6px; }
+.tk-step__body { margin: 0; color: var(--text-muted); max-width: 34ch; }
+
+/* ======================================================================
+   WHO TAKES YOU
+   ====================================================================== */
+
+.tk-lineage__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 60px;
+  align-items: center;
+}
+
+@media (max-width: 860px) {
+  .tk-lineage__grid { grid-template-columns: 1fr; gap: 36px; }
+}
+
+.tk-lineage__img,
+.tk-lineage__placeholder {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--hair);
+}
+
+.tk-lineage__placeholder { background: var(--bg-inset); }
+
+.tk-lineage__quote { margin: 0 0 22px; }
+
+.tk-lineage__quote p {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.4rem, 2.2vw, 1.95rem);
+  line-height: 1.32;
+  color: var(--text-heading);
+  margin: 0;
+}
+
+.tk-lineage__cite {
+  display: block;
+  margin-top: 12px;
+  font-style: normal;
+  font-size: 14px;
+  letter-spacing: .04em;
+  color: var(--text-muted);
+}
+
+.tk-lineage__body p { color: var(--text-muted); max-width: 52ch; }
+
+.tk-lineage__link { color: var(--verm-500); font-weight: 500; }
+
+.tk-creds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 36px;
+  margin: 32px 0 0;
+  padding-top: 26px;
+  border-top: 1px solid var(--hair);
+}
+
+.tk-creds__item { margin: 0; }
+
+.tk-creds__value {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 27px;
+  color: var(--text-heading);
+  margin: 0;
+}
+
+.tk-creds__label {
+  margin: 0;
+  font-size: 13px;
+  letter-spacing: .04em;
+  color: var(--text-muted);
+}
+
+/* ======================================================================
+   BEFORE YOU GO
+   ====================================================================== */
+
+.tk-guide-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(235px, 1fr));
+  gap: 20px;
+}
+
+.tk-guide-card {
+  display: block;
+  padding: 26px;
+  text-decoration: none;
+  color: inherit;
+  background: rgba(255, 255, 255, .55);
+  border: 1px solid var(--hair);
+  border-radius: var(--r);
+  transition: border-color var(--dur-base) var(--ease),
+              background var(--dur-base) var(--ease);
+}
+
+.tk-guide-card:hover {
+  border-color: var(--brassline);
+  background: rgba(255, 255, 255, .84);
+}
+
+.tk-guide-card__title { font-size: var(--text-lg); margin: 0 0 8px; }
+.tk-guide-card__body { margin: 0; font-size: 15px; color: var(--text-muted); }
+
+/* ======================================================================
+   CHECK US BEFORE YOU PAY US
+
+   Deliberately the plainest section on the page. Every other section is
+   trying to move someone; this one is trying to be checked, and anything
+   decorative here would undercut it. It reads like a document because it is
+   meant to be treated as one.
+   ====================================================================== */
+
+.tk-verify { background: var(--bg-raised); }
+
+.tk-verify__lede p {
+  max-width: var(--measure);
+  margin: 0 0 14px;
+}
+
+.tk-verify__list {
+  list-style: none;
+  margin: 34px 0 0;
+  padding: 0;
+  border-top: 1px solid var(--hair);
+  max-width: 880px;
+}
+
+.tk-verify__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.7fr) minmax(0, 1.3fr);
+  gap: 8px 24px;
+  align-items: baseline;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--hair);
+}
+
+@media (max-width: 720px) {
+  .tk-verify__row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
+
+.tk-verify__what {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-heading);
+}
+
+.tk-verify__value {
+  font-size: 17px;
+  color: var(--text-heading);
+  letter-spacing: .02em;
+}
+
+.tk-verify__where { font-size: 15px; color: var(--text-muted); }
+.tk-verify__where a { color: var(--brass-600); }
+
+.tk-verify__office {
+  margin: 26px 0 0;
+  max-width: var(--measure);
+  color: var(--text-muted);
+}
+
+.tk-verify__office strong { color: var(--text-heading); }
+
+/* The closing line is the whole section in one sentence, so it carries the
+   display face and sits alone. */
+.tk-verify__close {
+  margin: 34px 0 0;
+  max-width: 46ch;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.15rem, 1.8vw, 1.5rem);
+  line-height: 1.35;
+  color: var(--text-heading);
+}
+
+/* ======================================================================
+   THE PARIKRAMA LINE
+
+   The signature element. One brass hairline the length of the page, drawn
+   by scroll, with a step marker at each section. It is what makes the
+   homepage read as one continuous walk instead of stacked sections, and it
+   is the system's one ornament doing real work: every marker is a link.
+
+   Wide screens only. On anything narrower the gutter belongs to the
+   content, and an ornament that crowds the text is not an ornament.
+   ====================================================================== */
+
+.tk-line {
+  position: fixed;
+  left: 28px;
+  top: 14vh;
+  bottom: 14vh;
+  width: 12px;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.tk-line[hidden] { display: none; }
+
+.tk-line__track,
+.tk-line__drawn {
+  position: absolute;
+  left: 5px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+
+.tk-line__track { background: var(--hair); }
+
+.tk-line__drawn {
+  background: var(--brass-500);
+  transform-origin: top center;
+  transform: scaleY(0);
+}
+
+/* The step marker: the rotated square from the brass rule, now walking down
+   the page. Pointer events come back on for the links themselves. */
+.tk-line__mark {
+  position: absolute;
+  left: 0;
+  display: block;
+  width: 11px;
+  height: 11px;
+  margin-top: -5px;
+  pointer-events: auto;
+  text-decoration: none;
+}
+
+.tk-line__dot {
+  display: block;
+  width: 7px;
+  height: 7px;
+  margin: 2px;
+  background: var(--bg-page);
+  border: 1px solid var(--brassline);
+  transform: rotate(45deg);
+  transition: background var(--dur-base) var(--ease),
+              border-color var(--dur-base) var(--ease),
+              transform var(--dur-base) var(--ease);
+}
+
+.tk-line__mark:hover .tk-line__dot,
+.tk-line__mark.is-here .tk-line__dot {
+  background: var(--brass-500);
+  border-color: var(--brass-500);
+  transform: rotate(45deg) scale(1.25);
+}
+
+/* The label rides out on hover and focus only, so the rail stays a hairline
+   until someone asks it a question. */
+.tk-line__name {
+  position: absolute;
+  left: 22px;
+  top: 50%;
+  transform: translateY(-50%) translateX(-6px);
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--brass-600);
+  background: var(--bg-page);
+  padding: 4px 8px;
+  border-radius: var(--r-sm);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-base) var(--ease),
+              transform var(--dur-base) var(--ease);
+}
+
+.tk-line__mark:hover .tk-line__name,
+.tk-line__mark:focus-visible .tk-line__name {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+.tk-line__mark:focus-visible {
+  outline: none;
+  box-shadow: var(--ring-focus);
+  border-radius: var(--r-sm);
+}
+
+/* The rail sits over the night sections, where sand-coloured chrome would
+   disappear. */
+.tk-line__mark .tk-line__dot { will-change: transform; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tk-line__drawn { transform: scaleY(1); }
+  .tk-line__dot,
+  .tk-line__name { transition: none; }
+}

@@ -91,4 +91,203 @@ function tk_create_default_deity_terms() {
         }
     }
 }
-add_action('init', 'tk_create_default_deity_terms', 1);
+// Superseded by tk_seed_catalogue_terms(), which seeds every taxonomy once
+// behind an option flag instead of querying the database on every request.
+// The function is left in place because a theme this old may have callers.
+
+/**
+ * Build a full WordPress label set from one singular and one plural name.
+ *
+ * Three taxonomies below need the same twenty labels each. Writing them out
+ * three times is how they drift apart.
+ *
+ * @param string $singular Singular display name, e.g. "Tradition".
+ * @param string $plural   Plural display name, e.g. "Traditions".
+ * @return array
+ */
+function tk_taxonomy_labels($singular, $plural)
+{
+    return array(
+        'name'                       => $plural,
+        'singular_name'              => $singular,
+        'menu_name'                  => $plural,
+        'all_items'                  => sprintf(__('All %s', 'trip-kailash'), $plural),
+        'new_item_name'              => sprintf(__('New %s', 'trip-kailash'), $singular),
+        'add_new_item'               => sprintf(__('Add New %s', 'trip-kailash'), $singular),
+        'edit_item'                  => sprintf(__('Edit %s', 'trip-kailash'), $singular),
+        'update_item'                => sprintf(__('Update %s', 'trip-kailash'), $singular),
+        'view_item'                  => sprintf(__('View %s', 'trip-kailash'), $singular),
+        'separate_items_with_commas' => sprintf(__('Separate %s with commas', 'trip-kailash'), strtolower($plural)),
+        'add_or_remove_items'        => sprintf(__('Add or remove %s', 'trip-kailash'), strtolower($plural)),
+        'choose_from_most_used'      => __('Choose from the most used', 'trip-kailash'),
+        'popular_items'              => sprintf(__('Popular %s', 'trip-kailash'), $plural),
+        'search_items'               => sprintf(__('Search %s', 'trip-kailash'), $plural),
+        'not_found'                  => __('Not found', 'trip-kailash'),
+        'no_terms'                   => sprintf(__('No %s', 'trip-kailash'), strtolower($plural)),
+        'items_list'                 => sprintf(__('%s list', 'trip-kailash'), $plural),
+        'items_list_navigation'      => sprintf(__('%s list navigation', 'trip-kailash'), $plural),
+    );
+}
+
+/**
+ * The catalogue taxonomies.
+ *
+ * Organising by which deity you are going to see is how a pilgrim actually
+ * thinks, and no competitor does it: every Kathmandu operator sells Muktinath
+ * as a trek. This is what gives the Sacred Paths page a reason to exist.
+ *
+ * Tradition is deliberately NOT hierarchical, because it is multi-select.
+ * Several sites belong to more than one faith at once: Kailash is sacred to
+ * four, and Haleshi Maratika is both a Shaiva and a Nyingma site. A radio
+ * button would force a lie about the place.
+ */
+function tk_register_catalogue_taxonomies()
+{
+    $taxonomies = array(
+        'tradition' => array(
+            'singular' => __('Tradition', 'trip-kailash'),
+            'plural'   => __('Traditions', 'trip-kailash'),
+            'slug'     => 'tradition',
+        ),
+        'region' => array(
+            'singular' => __('Region', 'trip-kailash'),
+            'plural'   => __('Regions', 'trip-kailash'),
+            'slug'     => 'region',
+        ),
+        'style' => array(
+            'singular' => __('Style', 'trip-kailash'),
+            'plural'   => __('Styles', 'trip-kailash'),
+            'slug'     => 'journey-style',
+        ),
+    );
+
+    foreach ($taxonomies as $taxonomy => $config) {
+        register_taxonomy($taxonomy, array('pilgrimage_package'), array(
+            'labels'            => tk_taxonomy_labels($config['singular'], $config['plural']),
+            'hierarchical'      => false,
+            'public'            => true,
+            'show_ui'           => true,
+            'show_admin_column' => true,
+            'show_in_nav_menus' => true,
+            'show_tagcloud'     => false,
+            'show_in_rest'      => true,
+            'rewrite'           => array('slug' => $config['slug']),
+        ));
+    }
+}
+add_action('init', 'tk_register_catalogue_taxonomies', 0);
+
+/**
+ * Seed the catalogue terms, once.
+ *
+ * Guarded by an option rather than by a term lookup. tk_create_default_deity_terms
+ * below ran a get_terms() query on every single front-end request forever, to
+ * answer a question whose answer stops changing after the first time. This
+ * costs one autoloaded option read instead.
+ *
+ * Bumping TK_TAXONOMY_SEED_VERSION re-runs the seed, which is how new terms
+ * get added later without anyone touching the database by hand.
+ */
+define('TK_TAXONOMY_SEED_VERSION', 2);
+
+function tk_seed_catalogue_terms()
+{
+    if ((int) get_option('tk_taxonomy_seed_version') >= TK_TAXONOMY_SEED_VERSION) {
+        return;
+    }
+
+    $seed = array(
+        // Shakta is here because the site already runs a Devi track and the
+        // catalogue is gaining Pathibhara and Manakamana, both Devi sites. The
+        // brief listed five traditions and missed it.
+        //
+        // The Shaiva weighting that falls out of the seven live packages is a
+        // positioning asset, not something to apologise for: Nepal's Shiva
+        // pilgrimage specialists is sharper than pretending to cover everything.
+        'tradition' => array(
+            'shaiva'    => 'Shaiva',
+            'vaishnava' => 'Vaishnava',
+            'shakta'    => 'Shakta',
+            'buddhist'  => 'Buddhist',
+            'jain'      => 'Jain',
+            'bon'       => 'Bön',
+        ),
+        'region' => array(
+            'nepal'       => 'Nepal',
+            'tibet'       => 'Tibet',
+            'uttarakhand' => 'Uttarakhand',
+        ),
+        'style' => array(
+            'trek'       => 'Trek',
+            'overland'   => 'Overland',
+            'helicopter' => 'Helicopter',
+            'mixed'      => 'Mixed',
+        ),
+        'deity' => array(
+            'shiva'  => 'Shiva',
+            'vishnu' => 'Vishnu',
+            'devi'   => 'Devi',
+        ),
+    );
+
+    foreach ($seed as $taxonomy => $terms) {
+        if (!taxonomy_exists($taxonomy)) {
+            continue;
+        }
+
+        foreach ($terms as $slug => $name) {
+            if (!term_exists($slug, $taxonomy)) {
+                wp_insert_term($name, $taxonomy, array('slug' => $slug));
+            }
+        }
+    }
+
+    update_option('tk_taxonomy_seed_version', TK_TAXONOMY_SEED_VERSION);
+}
+add_action('init', 'tk_seed_catalogue_terms', 5);
+
+/**
+ * Filter the package archive by tradition from the query string.
+ *
+ * The filters are real links rather than JavaScript tabs, so the archive has
+ * to honour ?tradition= itself. That is what makes a filtered view shareable,
+ * bookmarkable, crawlable, and usable on a connection too poor to run a
+ * script.
+ *
+ * Guarded on the main front-end query so it cannot reach into the admin, a
+ * feed, or any secondary loop a widget happens to run.
+ *
+ * @param WP_Query $query
+ * @return void
+ */
+function tk_filter_packages_by_tradition($query)
+{
+    if (is_admin() || !$query->is_main_query()) {
+        return;
+    }
+
+    if (!$query->is_post_type_archive('pilgrimage_package')) {
+        return;
+    }
+
+    // phpcs:ignore WordPress.Security.NonceVerification -- reading a public query arg.
+    if (empty($_GET['tradition'])) {
+        return;
+    }
+
+    // phpcs:ignore WordPress.Security.NonceVerification
+    $slug = sanitize_key(wp_unslash($_GET['tradition']));
+
+    if (!term_exists($slug, 'tradition')) {
+        return;
+    }
+
+    $query->set('tax_query', array(
+        array(
+            'taxonomy' => 'tradition',
+            'field'    => 'slug',
+            'terms'    => $slug,
+        ),
+    ));
+}
+add_action('pre_get_posts', 'tk_filter_packages_by_tradition');

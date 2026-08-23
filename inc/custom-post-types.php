@@ -184,7 +184,19 @@ function trip_kailash_add_package_meta_box()
         'high'
     );
 }
-add_action('add_meta_boxes', 'trip_kailash_add_package_meta_box');
+/*
+ * Retired in favour of inc/package-admin.php, which generates its panels from
+ * tk_package_field_schema().
+ *
+ * Unhooking the save handler is the part that matters. Both systems own
+ * price_from and best_months, and they disagree about the shape: the old one
+ * writes best_months as a text string, the new one as a list of month
+ * integers. Left hooked, whichever ran last would quietly corrupt the other's
+ * data on every update.
+ *
+ * The functions stay defined so nothing that calls them fatals.
+ */
+// add_action('add_meta_boxes', 'trip_kailash_add_package_meta_box');
 
 /**
  * Render the package details meta box
@@ -427,7 +439,19 @@ function trip_kailash_save_package_meta($post_id)
         update_post_meta($post_id, 'key_stops', array());
     }
 }
-add_action('save_post_pilgrimage_package', 'trip_kailash_save_package_meta');
+/*
+ * Retired in favour of inc/package-admin.php, which generates its panels from
+ * tk_package_field_schema().
+ *
+ * Unhooking the save handler is the part that matters. Both systems own
+ * price_from and best_months, and they disagree about the shape: the old one
+ * writes best_months as a text string, the new one as a list of month
+ * integers. Left hooked, whichever ran last would quietly corrupt the other's
+ * data on every update.
+ *
+ * The functions stay defined so nothing that calls them fatals.
+ */
+// add_action('save_post_pilgrimage_package', 'trip_kailash_save_package_meta');
 
 /**
  * Register custom meta fields for guides

@@ -138,7 +138,15 @@ function tk_get_product_schema($post)
 {
     $pkg_info = function_exists('tk_get_package_info') ? tk_get_package_info() : array();
 
-    $price_from = !empty($pkg_info['price_from']) ? $pkg_info['price_from'] : get_post_meta($post->ID, 'price_from', true);
+    /*
+     * The field is the source of truth. tk_get_package_info() is filled in by
+     * the old Elementor widgets, which are being retired.
+     */
+    $price_from = function_exists('tk_package') ? tk_package('price_from', $post->ID) : '';
+
+    if ('' === $price_from || null === $price_from) {
+        $price_from = !empty($pkg_info['price_from']) ? $pkg_info['price_from'] : get_post_meta($post->ID, 'price_from', true);
+    }
     $trip_length = !empty($pkg_info['duration']) ? $pkg_info['duration'] : get_post_meta($post->ID, 'trip_length', true);
 
     // Build extended description for Schema (richer than meta tag)
@@ -177,17 +185,12 @@ function tk_get_product_schema($post)
         ),
         'offers' => array(
             '@type' => 'Offer',
-            'price' => $price_from ?: '85000',
+            'price' => $price_from,
             'priceCurrency' => 'USD',
             'availability' => 'https://schema.org/InStock',
             'validFrom' => date('Y-m-d'),
             'priceValidUntil' => date('Y-12-31'),
             'url' => get_permalink($post),
-        ),
-        'aggregateRating' => array(
-            '@type' => 'AggregateRating',
-            'ratingValue' => '4.8',
-            'reviewCount' => '150',
         ),
     );
 }
@@ -443,6 +446,15 @@ function tk_build_page_schema()
         $schema['@graph'][] = tk_get_travel_action_schema($post);
         $schema['@graph'][] = tk_get_product_schema($post);
 
+        /* TouristTrip is the type that actually describes what is being sold
+           here. Product alone described a fourteen day pilgrimage the same way
+           it would describe a kettle. */
+        $trip = tk_get_tourist_trip_schema($post);
+
+        if (!empty($trip)) {
+            $schema['@graph'][] = $trip;
+        }
+
         // Check for FAQ content in post meta AND registered page FAQs
         $meta_faqs = get_post_meta($post->ID, 'faqs', true);
         if (!is_array($meta_faqs)) {
@@ -540,4 +552,153 @@ function tk_get_package_info()
 {
     global $tk_package_info;
     return $tk_package_info ?: array();
+}
+
+/**
+ * TouristTrip schema, generated entirely from the package fields.
+ *
+ * TouristTrip is the type that actually describes what this business sells.
+ * Product was carrying the whole job before, which meant a fourteen day
+ * pilgrimage over a 5,630 m pass was described to search engines the same way
+ * a kettle is.
+ *
+ * Everything here comes from a field. Nothing is defaulted, invented or
+ * padded: a property with no value is omitted rather than guessed at, because
+ * structured data is a claim made to a machine that will repeat it.
+ *
+ * @param WP_Post $post
+ * @return array
+ */
+function tk_get_tourist_trip_schema($post)
+{
+    if (!function_exists('tk_package')) {
+        return array();
+    }
+
+    $id = $post->ID;
+
+    $schema = array(
+        '@type' => 'TouristTrip',
+        'name'  => $post->post_title,
+        'url'   => get_permalink($post),
+    );
+
+    $pitch = tk_package('short_pitch', $id);
+
+    if ($pitch) {
+        $schema['description'] = wp_strip_all_tags($pitch);
+    }
+
+    $image = get_the_post_thumbnail_url($post, 'large');
+
+    if ($image) {
+        $schema['image'] = $image;
+    }
+
+    /* ISO 8601 duration. P14D is what a machine understands by fourteen days. */
+    $days = (int) tk_package('duration_days', $id);
+
+    if ($days > 0) {
+        $schema['itinerary'] = array('@type' => 'ItemList', 'numberOfItems' => $days);
+        $schema['duration']  = 'P' . $days . 'D';
+    }
+
+    $itinerary = tk_package('itinerary', $id);
+
+    if (!empty($itinerary)) {
+        $elements = array();
+        $position = 0;
+
+        foreach ($itinerary as $day) {
+            if (empty($day['title'])) {
+                continue;
+            }
+
+            $position++;
+            $element = array(
+                '@type'    => 'ListItem',
+                'position' => $position,
+                'name'     => $day['title'],
+            );
+
+            if (!empty($day['overnight'])) {
+                $element['item'] = array(
+                    '@type' => 'Place',
+                    'name'  => $day['overnight'],
+                );
+            }
+
+            $elements[] = $element;
+        }
+
+        if ($elements) {
+            $schema['itinerary'] = array(
+                '@type'           => 'ItemList',
+                'numberOfItems'   => count($elements),
+                'itemListElement' => $elements,
+            );
+        }
+    }
+
+    /* Group size, when both ends are known. */
+    $min = (int) tk_package('group_size_min', $id);
+    $max = (int) tk_package('group_size_max', $id);
+
+    if ($min > 0 || $max > 0) {
+        $audience = array('@type' => 'QuantitativeValue');
+
+        if ($min > 0) {
+            $audience['minValue'] = $min;
+        }
+
+        if ($max > 0) {
+            $audience['maxValue'] = $max;
+        }
+
+        $schema['maximumAttendeeCapacity'] = $max > 0 ? $max : null;
+        $schema['audience'] = array('@type' => 'Audience', 'audienceType' => 'Pilgrims');
+
+        if (null === $schema['maximumAttendeeCapacity']) {
+            unset($schema['maximumAttendeeCapacity']);
+        }
+    }
+
+    /* The offer, and only when there is a real price to put in it. */
+    $price = tk_package('price_from', $id);
+
+    if ('' !== $price && null !== $price && (float) $price > 0) {
+        $schema['offers'] = array(
+            '@type'         => 'Offer',
+            'price'         => (float) $price,
+            'priceCurrency' => 'USD',
+            'availability'  => 'https://schema.org/InStock',
+            'url'           => get_permalink($post),
+        );
+    }
+
+    /* Where it goes, from the region taxonomy. */
+    $regions = get_the_terms($id, 'region');
+
+    if ($regions && !is_wp_error($regions)) {
+        $places = array();
+
+        foreach ($regions as $region) {
+            $places[] = array('@type' => 'Place', 'name' => $region->name);
+        }
+
+        $schema['touristType'] = wp_list_pluck((array) get_the_terms($id, 'tradition') ?: array(), 'name');
+        $schema['subjectOf']   = $places;
+
+        if (empty($schema['touristType'])) {
+            unset($schema['touristType']);
+        }
+    }
+
+    $schema['provider'] = array(
+        '@type' => 'TravelAgency',
+        'name'  => get_bloginfo('name'),
+        'url'   => home_url('/'),
+    );
+
+    return $schema;
 }

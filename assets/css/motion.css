@@ -1,0 +1,220 @@
+/**
+ * Trip Kailash motion system
+ *
+ * Nothing snaps. Two easing curves from variables.css, used everywhere.
+ * Every rule here earned its place by preventing a bug that actually ships.
+ *
+ * Reduced motion is honoured at the bottom of this file, completely and in
+ * both directions. assets/js/reveal.js drives the classes.
+ */
+
+/* ======================================================================
+   REVEAL
+   One element arriving. JS adds .is-in when it crosses the viewport.
+   ====================================================================== */
+
+.tk-rv {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity var(--dur-slow) var(--ease-out),
+    transform var(--dur-slow) var(--ease-out);
+}
+
+.tk-rv.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Directional variants, for sections that should not all rise the same way.
+   No two adjacent sections share a layout skeleton, and they should not share
+   an entrance either. */
+.tk-rv--left  { transform: translateX(-26px); }
+.tk-rv--right { transform: translateX(26px); }
+.tk-rv--scale { transform: scale(.965); }
+.tk-rv--left.is-in,
+.tk-rv--right.is-in,
+.tk-rv--scale.is-in { transform: none; }
+
+/* ======================================================================
+   STAGGER
+   Children arriving in sequence. 70ms steps, which reads as choreography
+   rather than as a queue.
+
+   Two traps live here, both from the engineering standard:
+
+   1. Start and end states are prefixed with the container class, so a later
+      rule cannot silently cancel the entrance.
+   2. The delays are RETIRED once the entrance finishes. Without that, every
+      hover on the later siblings lags by its stagger forever. The retiring
+      rule has to match or beat the specificity of the nth-child rules it is
+      retiring, since :nth-child counts as a class. .tk-stagger.is-done > *
+      alone only ties, so it carries :nth-child(n) to win outright.
+   ====================================================================== */
+
+.tk-stagger > .tk-rv {
+  transition-delay: 0ms;
+}
+
+.tk-stagger.is-in > .tk-rv:nth-child(1) { transition-delay: 0ms; }
+.tk-stagger.is-in > .tk-rv:nth-child(2) { transition-delay: 70ms; }
+.tk-stagger.is-in > .tk-rv:nth-child(3) { transition-delay: 140ms; }
+.tk-stagger.is-in > .tk-rv:nth-child(4) { transition-delay: 210ms; }
+.tk-stagger.is-in > .tk-rv:nth-child(5) { transition-delay: 280ms; }
+.tk-stagger.is-in > .tk-rv:nth-child(6) { transition-delay: 350ms; }
+.tk-stagger.is-in > .tk-rv:nth-child(n + 7) { transition-delay: 420ms; }
+
+/* The retirement. JS adds .is-done when the last child has finished. */
+.tk-stagger.is-done > .tk-rv:nth-child(n) {
+  transition-delay: 0ms;
+}
+
+/* ======================================================================
+   THE BRASS RULE
+   The one ornament: a hairline with a small rotated square at its left end,
+   echoing metal inlay on a temple door frame. It draws itself on reveal.
+   ====================================================================== */
+
+.tk-rule {
+  position: relative;
+  height: 1px;
+  max-width: var(--measure);
+  margin: 18px 0 34px;
+  background: var(--brassline);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 900ms var(--ease-out);
+}
+
+.tk-rule.is-in { transform: scaleX(1); }
+
+.tk-rule::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: -3px;
+  width: 7px;
+  height: 7px;
+  background: var(--brass-500);
+  transform: rotate(45deg) scale(0);
+  transition: transform 420ms var(--ease-out) 260ms;
+}
+
+.tk-rule.is-in::before { transform: rotate(45deg) scale(1); }
+
+/* On the night ground the rule brightens, or it disappears into the dark. */
+.tk-deep .tk-rule { background: var(--hair-on-deep); }
+.tk-deep .tk-rule::before { background: var(--brass-300); }
+
+/* ======================================================================
+   WHISPER LEVEL
+   One living element per section, four seconds or longer, so the page
+   feels like a place rather than a stack of sections.
+
+   Two rules make these cheap. Negative animation-delay means every loop is
+   already mid-cycle at first paint, instead of all starting together and
+   snapping. And the animation only runs while .is-near is on, which an
+   IntersectionObserver toggles, so off-screen sections cost nothing.
+   ====================================================================== */
+
+@keyframes tk-breathe {
+  0%, 100% { opacity: .34; }
+  50%      { opacity: .68; }
+}
+
+@keyframes tk-drift {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(0, -9px, 0); }
+}
+
+/* The glow sits on a pseudo-element at full strength and only its opacity
+   animates, because animating a box-shadow repaints on every frame. */
+.tk-glow { position: relative; }
+
+.tk-glow::after {
+  content: "";
+  position: absolute;
+  inset: -18%;
+  z-index: -1;
+  pointer-events: none;
+  border-radius: 50%;
+  opacity: 0;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(224, 196, 137, .30) 0%,
+    rgba(224, 196, 137, 0) 68%
+  );
+}
+
+.tk-glow.is-near::after {
+  animation: tk-breathe 7s var(--ease) -2.4s infinite;
+}
+
+.tk-float.is-near {
+  animation: tk-drift 9s var(--ease) -3.1s infinite;
+}
+
+/* Pausing on a hidden tab.
+   animation-play-state is NOT an inherited property, so setting it on a
+   container silently never reaches nested elements or pseudo-elements. The
+   selector has to hit all three directly, which is what this does. */
+body.tk-paused *,
+body.tk-paused *::before,
+body.tk-paused *::after {
+  animation-play-state: paused !important;
+}
+
+/* ======================================================================
+   REDUCED MOTION
+   Honoured completely: elements and pseudo-elements, every delay zeroed,
+   every choreographed element shown in its final finished state.
+
+   Note what this does NOT do. There is no blanket transform: none, because
+   that throws any element whose layout depends on a positional transform off
+   the screen. Only the entrance transforms are cleared, by name.
+
+   reveal.js handles the other half: a flip INTO reduced motion mid-session
+   pins everything to its final state, and a flip back out re-arms the
+   observers rather than leaving the pins behind.
+   ====================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Final states, shown. */
+  .tk-rv,
+  .tk-rv--left,
+  .tk-rv--right,
+  .tk-rv--scale {
+    opacity: 1;
+    transform: none;
+  }
+
+  .tk-rule { transform: scaleX(1); }
+  .tk-rule::before { transform: rotate(45deg) scale(1); }
+
+  .tk-glow::after { opacity: .46; }
+}
+
+/* The same final states, applied by class rather than by media query, so JS
+   can pin the page when reduced motion is switched on DURING a session. */
+.tk-motion-off .tk-rv,
+.tk-motion-off .tk-rule,
+.tk-motion-off .tk-glow::after {
+  transition: none !important;
+  animation: none !important;
+}
+
+.tk-motion-off .tk-rv { opacity: 1; transform: none; }
+.tk-motion-off .tk-rule { transform: scaleX(1); }
+.tk-motion-off .tk-rule::before { transform: rotate(45deg) scale(1); }
+.tk-motion-off .tk-glow::after { opacity: .46; }

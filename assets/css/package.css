@@ -1,0 +1,538 @@
+/**
+ * Trip Kailash package page
+ *
+ * Loaded on single pilgrimage packages only.
+ */
+
+/* ======================================================================
+   HERO
+   One image, no carousel. Carousels delay the largest paint, nobody sees
+   slide three, and they signal indecision about which photograph is good.
+   ====================================================================== */
+
+.tk-package-hero {
+  position: relative;
+  min-height: 62vh;
+  display: flex;
+  align-items: flex-end;
+  padding-block: 18vh 6vh;
+  background: var(--night-900);
+  color: var(--sand-100);
+  overflow: hidden;
+}
+
+.tk-package-hero__media { position: absolute; inset: 0; }
+
+.tk-package-hero__img,
+.tk-package-hero__placeholder {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tk-package-hero__placeholder {
+  background:
+    repeating-linear-gradient(108deg, rgba(224, 196, 137, .08) 0 2px, transparent 2px 16px),
+    var(--night-700);
+}
+
+.tk-package-hero__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    rgba(14, 9, 4, .58) 0%,
+    rgba(14, 9, 4, .18) 42%,
+    rgba(14, 9, 4, .82) 100%);
+}
+
+.tk-package-hero__inner { position: relative; z-index: 2; }
+
+.tk-package-hero__traditions { color: var(--brass-300); }
+
+.tk-package-hero__title {
+  color: #fff;
+  font-size: var(--text-3xl);
+  max-width: 18ch;
+  margin: 0;
+  text-shadow: 0 2px 40px rgba(14, 9, 4, .5);
+}
+
+.tk-package-hero__pitch {
+  margin: 20px 0 0;
+  max-width: 54ch;
+  font-size: 18px;
+  color: rgba(245, 237, 223, .92);
+}
+
+.tk-package-hero__jump { margin: 30px 0 0; }
+
+/* Only shown on narrow screens, where the sticky panel has collapsed to the
+   bottom of the page and is a long way from the hero. */
+@media (min-width: 981px) {
+  .tk-package-hero__jump { display: none; }
+}
+
+/* ======================================================================
+   SPEC STRIP
+   Every value comes from a field. Nothing here is typed into a layout.
+   ====================================================================== */
+
+.tk-specs {
+  background: var(--bg-raised);
+  border-bottom: 1px solid var(--hair);
+  padding-block: 30px;
+}
+
+.tk-specs__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 26px 30px;
+  margin: 0;
+}
+
+.tk-specs__item { margin: 0; }
+
+.tk-specs__label {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0 0 5px;
+}
+
+.tk-specs__value {
+  margin: 0;
+  font-size: var(--text-lg);
+  color: var(--text-heading);
+}
+
+/* Grading pairs its colour with the word, always. A dot alone tells a
+   colour-blind reader nothing, and this is the field someone uses to decide
+   whether they can physically go. */
+.tk-grade-dot {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: var(--tk-grade-token, var(--brass-500));
+}
+
+/* ======================================================================
+   LAYOUT
+   ====================================================================== */
+
+.tk-package__body { padding-block: 72px 96px; }
+
+.tk-package__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 370px;
+  gap: 64px;
+  align-items: start;
+}
+
+@media (max-width: 980px) {
+  .tk-package__grid { grid-template-columns: 1fr; gap: 48px; }
+}
+
+.tk-package__aside { position: sticky; top: 96px; }
+
+@media (max-width: 980px) {
+  .tk-package__aside { position: static; }
+}
+
+.tk-pk-section { margin-bottom: 72px; }
+.tk-pk-section:last-child { margin-bottom: 0; }
+
+.tk-prose p { max-width: var(--measure); margin: 0 0 1.1em; }
+.tk-prose h2, .tk-prose h3 { margin: 1.6em 0 .5em; }
+
+/* ======================================================================
+   ITINERARY
+   ====================================================================== */
+
+.tk-itinerary { list-style: none; margin: 0; padding: 0; }
+
+.tk-itinerary__day { border-top: 1px solid var(--hair); }
+.tk-itinerary__day:last-child { border-bottom: 1px solid var(--hair); }
+
+.tk-itinerary__summary {
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: baseline;
+  padding: 18px 0;
+  cursor: pointer;
+  list-style: none;
+}
+
+.tk-itinerary__summary::-webkit-details-marker { display: none; }
+
+.tk-itinerary__num {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--brass-600);
+}
+
+.tk-itinerary__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-lg);
+  color: var(--text-heading);
+}
+
+.tk-itinerary__alt { font-size: 14px; color: var(--text-muted); white-space: nowrap; }
+
+.tk-itinerary__detail { padding: 0 0 22px 98px; }
+
+@media (max-width: 620px) {
+  .tk-itinerary__summary { grid-template-columns: 1fr auto; }
+  .tk-itinerary__num { grid-column: 1 / -1; }
+  .tk-itinerary__detail { padding-left: 0; }
+}
+
+.tk-itinerary__body { margin: 0 0 16px; max-width: var(--measure); color: var(--text-body); }
+
+.tk-itinerary__facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 32px;
+  margin: 0;
+}
+
+.tk-itinerary__fact dt {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.tk-itinerary__fact dd { margin: 2px 0 0; font-size: 15px; color: var(--text-heading); }
+
+/* ======================================================================
+   INCLUSIONS
+   Two columns of equal weight. Exclusions are not small print: they are the
+   column a careful buyer reads first.
+   ====================================================================== */
+
+.tk-inclusions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 34px;
+}
+
+.tk-inclusions__col {
+  padding: 24px 26px;
+  border-radius: var(--r);
+  border: 1px solid var(--hair);
+  background: var(--bg-raised);
+}
+
+.tk-inclusions__col--out { background: var(--bg-inset); }
+
+.tk-inclusions__head {
+  font-size: 13px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  margin: 0 0 14px;
+}
+
+.tk-inclusions__list { margin: 0; padding-left: 1.1em; }
+.tk-inclusions__list li { margin-bottom: .5em; }
+.tk-inclusions__col--out .tk-inclusions__list { color: var(--text-muted); }
+
+/* ======================================================================
+   SEASON BAR
+   ====================================================================== */
+
+.tk-season {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tk-season__month { text-align: center; }
+
+.tk-season__bar {
+  display: block;
+  height: 40px;
+  border-radius: var(--r-sm);
+  background: var(--bg-inset);
+  border: 1px solid var(--hair);
+}
+
+.tk-season__month.is-good .tk-season__bar {
+  background: var(--brass-500);
+  border-color: var(--brass-500);
+}
+
+.tk-season__name {
+  display: block;
+  margin-top: 8px;
+  font-size: 11px;
+  letter-spacing: .06em;
+  color: var(--text-muted);
+}
+
+.tk-season__month.is-good .tk-season__name { color: var(--brass-600); font-weight: 700; }
+
+/* The written list is not a duplicate. Colour alone is not a signal, and the
+   sentence is what a screen reader and a colour-blind reader actually get. */
+.tk-season__note { margin: 18px 0 0; color: var(--text-muted); }
+
+@media (max-width: 620px) {
+  .tk-season { grid-template-columns: repeat(6, 1fr); gap: 8px; }
+}
+
+/* ======================================================================
+   PREPARATION AND FAQ
+   ====================================================================== */
+
+.tk-prep {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 34px;
+}
+
+.tk-prep__head { font-size: var(--text-lg); margin: 0 0 12px; }
+.tk-prep__list { margin: 0; padding-left: 1.1em; color: var(--text-muted); }
+.tk-prep__list li { margin-bottom: .5em; }
+
+.tk-faq__item { border-top: 1px solid var(--hair); }
+.tk-faq__item:last-child { border-bottom: 1px solid var(--hair); }
+
+.tk-faq__q {
+  padding: 18px 0;
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-lg);
+  color: var(--text-heading);
+}
+
+.tk-faq__q::-webkit-details-marker { display: none; }
+.tk-faq__a { padding: 0 0 20px; }
+.tk-faq__a p { margin: 0; max-width: var(--measure); color: var(--text-body); }
+
+/* ======================================================================
+   RESERVE PANEL
+   Pricing first, because that is what the sidebar was asked to carry
+   instead of a table of contents.
+   ====================================================================== */
+
+.tk-reserve {
+  border: 1px solid var(--hair);
+  border-radius: var(--r-lg);
+  background: var(--bg-card);
+  overflow: hidden;
+}
+
+.tk-reserve__price {
+  padding: 26px 26px 20px;
+  background: var(--bg-raised);
+  border-bottom: 1px solid var(--hair);
+}
+
+.tk-reserve__from {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.tk-reserve__amount {
+  margin: 4px 0 0;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 2.5rem;
+  line-height: 1;
+  color: var(--text-heading);
+}
+
+.tk-reserve__currency { font-size: .6em; vertical-align: .28em; margin-right: 2px; }
+.tk-reserve__note { margin: 6px 0 0; font-size: 14px; color: var(--text-muted); }
+
+.tk-reserve__tiers {
+  padding: 18px 26px;
+  border-bottom: 1px solid var(--hair);
+  background: var(--bg-raised);
+}
+
+.tk-reserve__tiers-head {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.tk-reserve__tier-list { margin: 0; padding: 0; list-style: none; }
+
+.tk-reserve__tier {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 5px 0;
+  font-size: 15px;
+  color: var(--text-heading);
+}
+
+.tk-reserve__form { padding: 24px 26px 26px; }
+
+.tk-reserve__form .tk-field { margin: 0 0 16px; padding: 0; border: 0; }
+
+.tk-reserve__form label {
+  display: block;
+  margin-bottom: 5px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.tk-reserve__form input,
+.tk-reserve__form select,
+.tk-reserve__form textarea {
+  width: 100%;
+  padding: 11px 13px;
+  font-family: var(--font-body);
+  font-size: 16px;   /* 16px stops iOS zooming the page on focus */
+  color: var(--text-body);
+  background: var(--bg-page);
+  border: 1px solid var(--solid);
+  border-radius: var(--r);
+}
+
+.tk-reserve__form input:focus-visible,
+.tk-reserve__form select:focus-visible,
+.tk-reserve__form textarea:focus-visible {
+  outline: none;
+  border-color: var(--brass-500);
+  box-shadow: var(--ring-focus);
+}
+
+.tk-field__help { display: block; margin-top: 5px; font-size: 13px; color: var(--text-muted); }
+
+/* The honeypot. Off screen rather than display:none, because some bots skip
+   anything that is not rendered. */
+.tk-hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.tk-reserve__total {
+  margin: 0 0 18px;
+  padding: 14px 16px;
+  background: var(--bg-inset);
+  border-radius: var(--r);
+}
+
+.tk-reserve__total-line {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--text-heading);
+}
+
+.tk-reserve__total-sub {
+  display: block;
+  margin-top: 3px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.tk-reserve__submit { width: 100%; }
+
+.tk-reserve__reassure {
+  margin: 12px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.tk-reserve__result { margin: 14px 0 0; font-size: 15px; }
+.tk-reserve__result:empty { margin: 0; }
+.tk-reserve__result.is-good { color: var(--grade-easy); }
+.tk-reserve__result.is-bad { color: var(--verm-500); }
+
+/* ---- Money explainer and trust ---------------------------------------- */
+
+.tk-money {
+  padding: 24px 26px 26px;
+  background: var(--bg-raised);
+  border-top: 1px solid var(--hair);
+}
+
+.tk-money__head {
+  margin: 0 0 14px;
+  font-size: 13px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.tk-money__steps {
+  margin: 0;
+  padding-left: 1.2em;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.tk-money__steps li { margin-bottom: 9px; }
+.tk-money__steps strong { display: block; color: var(--text-heading); }
+
+.tk-money__policy {
+  margin: 16px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.tk-money__trust {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--hair);
+}
+
+.tk-money__trust-head {
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--brass-600);
+}
+
+.tk-money__creds { margin: 0; }
+
+.tk-money__cred {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 4px 0;
+  font-size: 13px;
+}
+
+.tk-money__cred dt { color: var(--text-muted); }
+.tk-money__cred dd { margin: 0; color: var(--text-heading); }
+
+.tk-money__verify { margin: 12px 0 0; font-size: 13px; }
+.tk-money__verify a { color: var(--brass-600); }

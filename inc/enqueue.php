@@ -25,9 +25,13 @@ function trip_kailash_enqueue_assets() {
      * parallel while the dependency chain preserves cascade order.
      */
     $styles = array(
-        'trip-kailash-variables'  => array( 'variables.css', array() ),
+        // Faces first: the @font-face block must be parsed before any rule
+        // that asks for one, or the first paint uses the fallback stack.
+        'trip-kailash-fonts'      => array( 'fonts.css', array() ),
+        'trip-kailash-variables'  => array( 'variables.css', array( 'trip-kailash-fonts' ) ),
         'trip-kailash-base'       => array( 'base.css', array( 'trip-kailash-variables' ) ),
-        'trip-kailash-components' => array( 'components.css', array( 'trip-kailash-base' ) ),
+        'trip-kailash-motion'     => array( 'motion.css', array( 'trip-kailash-base' ) ),
+        'trip-kailash-components' => array( 'components.css', array( 'trip-kailash-motion' ) ),
         'trip-kailash-header'     => array( 'header.css', array( 'trip-kailash-components' ) ),
         'trip-kailash-footer'     => array( 'footer.css', array( 'trip-kailash-header' ) ),
         // Elementor overrides must win the cascade, so they load last.
@@ -64,11 +68,108 @@ function trip_kailash_enqueue_assets() {
         );
     }
 
+    /*
+     * Homepage styles, on the homepage only.
+     *
+     * Loaded after the Elementor overrides so the front page can win without
+     * escalating specificity, and conditionally because the pinned gallery
+     * and kora ring rules are dead weight on every other page.
+     */
+    if ( is_front_page() ) {
+        $home_deps = array( 'trip-kailash-seo' );
+
+        wp_enqueue_style(
+            'trip-kailash-home',
+            TRIP_KAILASH_URI . '/assets/css/home.css',
+            $home_deps,
+            TRIP_KAILASH_VERSION,
+            'all'
+        );
+
+        /*
+         * The scrub engine. It exits immediately unless the hero markup says
+         * a clip is actually configured, so it costs nothing on a homepage
+         * that is running the still.
+         */
+        wp_enqueue_script(
+            'trip-kailash-hero-scrub',
+            TRIP_KAILASH_URI . '/assets/js/hero-scrub.js',
+            array(),
+            TRIP_KAILASH_VERSION,
+            true
+        );
+
+        // The pinned temple gallery.
+        wp_enqueue_script(
+            'trip-kailash-parikrama',
+            TRIP_KAILASH_URI . '/assets/js/parikrama.js',
+            array(),
+            TRIP_KAILASH_VERSION,
+            true
+        );
+
+        // The one interactive moment.
+        wp_enqueue_script(
+            'trip-kailash-kora',
+            TRIP_KAILASH_URI . '/assets/js/kora-ring.js',
+            array(),
+            TRIP_KAILASH_VERSION,
+            true
+        );
+
+        // The signature line, which also navigates.
+        wp_enqueue_script(
+            'trip-kailash-parikrama-line',
+            TRIP_KAILASH_URI . '/assets/js/parikrama-line.js',
+            array(),
+            TRIP_KAILASH_VERSION,
+            true
+        );
+    }
+
+    /*
+     * Package page assets, on single packages only. The template renders
+     * entirely from fields, so none of this is needed anywhere else.
+     */
+    /* The catalogue: the archive, its taxonomy listings, and the Sacred Paths
+       page, which all render the same cards. */
+    if ( is_post_type_archive( 'pilgrimage_package' )
+        || is_tax( array( 'tradition', 'region', 'style', 'deity' ) )
+        || is_page_template( 'page-sacred-paths.php' ) ) {
+        wp_enqueue_style(
+            'trip-kailash-catalogue',
+            TRIP_KAILASH_URI . '/assets/css/catalogue.css',
+            array( 'trip-kailash-seo' ),
+            TRIP_KAILASH_VERSION,
+            'all'
+        );
+    }
+
+    if ( is_singular( 'pilgrimage_package' ) ) {
+        wp_enqueue_style(
+            'trip-kailash-package',
+            TRIP_KAILASH_URI . '/assets/css/package.css',
+            array( 'trip-kailash-seo' ),
+            TRIP_KAILASH_VERSION,
+            'all'
+        );
+    }
+
     // Enqueue JavaScript files
     // Overlay script for package details
     wp_enqueue_script(
         'trip-kailash-overlay',
         TRIP_KAILASH_URI . '/assets/js/overlay.js',
+        array(),
+        TRIP_KAILASH_VERSION,
+        true
+    );
+
+    // Reveal and motion driver. Deferred: it only reads the DOM and arms
+    // observers, so nothing it does needs to block parsing.
+    wp_enqueue_script(
+        'trip-kailash-reveal',
+        TRIP_KAILASH_URI . '/assets/js/reveal.js',
         array(),
         TRIP_KAILASH_VERSION,
         true
@@ -110,6 +211,16 @@ function trip_kailash_enqueue_assets() {
         true
     );
 
+    if ( is_singular( 'pilgrimage_package' ) ) {
+        wp_enqueue_script(
+            'trip-kailash-package',
+            TRIP_KAILASH_URI . '/assets/js/package.js',
+            array( 'trip-kailash-main' ),
+            TRIP_KAILASH_VERSION,
+            true
+        );
+    }
+
     // Pass PHP data to JavaScript
     wp_localize_script(
         'trip-kailash-main',
@@ -125,6 +236,31 @@ function trip_kailash_enqueue_assets() {
     );
 }
 add_action( 'wp_enqueue_scripts', 'trip_kailash_enqueue_assets' );
+
+/**
+ * Preload the two faces every page actually paints with.
+ *
+ * A self-hosted font is only discovered after the browser has downloaded and
+ * parsed fonts.css, which puts the request a full round trip later than it
+ * needs to be. Preloading the two latin subsets moves them onto the wire
+ * immediately, which is where the swap-in flash goes away.
+ *
+ * Only these two. The latin-ext and Devanagari subsets are scoped by
+ * unicode-range and most pages never need them, so preloading those would
+ * spend bandwidth on files that go unused.
+ */
+function trip_kailash_preload_fonts() {
+    $fonts = array( 'cinzel-latin.woff2', 'karla-latin.woff2' );
+
+    foreach ( $fonts as $font ) {
+        printf(
+            '<link rel="preload" href="%s" as="font" type="font/woff2" crossorigin>' . "
+",
+            esc_url( TRIP_KAILASH_URI . '/assets/fonts/' . $font )
+        );
+    }
+}
+add_action( 'wp_head', 'trip_kailash_preload_fonts', 1 );
 
 /**
  * Enqueue admin styles and scripts
