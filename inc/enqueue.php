@@ -25,7 +25,10 @@ function trip_kailash_enqueue_assets() {
      * parallel while the dependency chain preserves cascade order.
      */
     $styles = array(
-        'trip-kailash-variables'  => array( 'variables.css', array() ),
+        // Faces first: the @font-face block must be parsed before any rule
+        // that asks for one, or the first paint uses the fallback stack.
+        'trip-kailash-fonts'      => array( 'fonts.css', array() ),
+        'trip-kailash-variables'  => array( 'variables.css', array( 'trip-kailash-fonts' ) ),
         'trip-kailash-base'       => array( 'base.css', array( 'trip-kailash-variables' ) ),
         'trip-kailash-components' => array( 'components.css', array( 'trip-kailash-base' ) ),
         'trip-kailash-header'     => array( 'header.css', array( 'trip-kailash-components' ) ),
@@ -125,6 +128,31 @@ function trip_kailash_enqueue_assets() {
     );
 }
 add_action( 'wp_enqueue_scripts', 'trip_kailash_enqueue_assets' );
+
+/**
+ * Preload the two faces every page actually paints with.
+ *
+ * A self-hosted font is only discovered after the browser has downloaded and
+ * parsed fonts.css, which puts the request a full round trip later than it
+ * needs to be. Preloading the two latin subsets moves them onto the wire
+ * immediately, which is where the swap-in flash goes away.
+ *
+ * Only these two. The latin-ext and Devanagari subsets are scoped by
+ * unicode-range and most pages never need them, so preloading those would
+ * spend bandwidth on files that go unused.
+ */
+function trip_kailash_preload_fonts() {
+    $fonts = array( 'cinzel-latin.woff2', 'karla-latin.woff2' );
+
+    foreach ( $fonts as $font ) {
+        printf(
+            '<link rel="preload" href="%s" as="font" type="font/woff2" crossorigin>' . "
+",
+            esc_url( TRIP_KAILASH_URI . '/assets/fonts/' . $font )
+        );
+    }
+}
+add_action( 'wp_head', 'trip_kailash_preload_fonts', 1 );
 
 /**
  * Enqueue admin styles and scripts
