@@ -11,7 +11,7 @@ Status key: `[ ]` not started · `[~]` in progress · `[x]` done and committed
 
 ## Phase 1 — Foundation
 
-- [ ] **1.1** Design tokens. Replace the old palette with sandalwood/brass/night.
+- [x] **1.1** Design tokens. Replace the old palette with sandalwood/brass/night.
       Files: `assets/css/variables.css`
 - [ ] **1.2** Self-hosted fonts. Cinzel 700/900, Karla 400/500, Noto Serif Devanagari 500/700.
       Files: `assets/fonts/`, `assets/css/fonts.css`
