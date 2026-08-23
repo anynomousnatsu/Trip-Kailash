@@ -249,6 +249,38 @@ class Pilgrimage_Sidebar_Nav extends Widget_Base {
                     </div>
                 <?php endif; ?>
 
+                <?php
+                /*
+                 * Transparent pricing, at the top, where it is asked for.
+                 *
+                 * Group-tier prices already exist on these pages, but they
+                 * live in the booking table far below the fold, so a visitor
+                 * weighing up the trip had to hunt for the number that decides
+                 * whether they read on at all. This panel surfaces the
+                 * headline price from the package's own price_from meta and
+                 * links down to the full tier table rather than duplicating
+                 * it, so the two can never disagree.
+                 */
+                $tk_price_from = get_post_meta( get_the_ID(), 'price_from', true );
+                $tk_price_from = is_numeric( $tk_price_from ) ? (int) $tk_price_from : 0;
+
+                if ( $tk_price_from > 0 ) :
+                    ?>
+                    <div class="tk-sidebar-price">
+                        <span class="tk-sidebar-price__label"><?php esc_html_e( 'Starting from', 'trip-kailash' ); ?></span>
+                        <span class="tk-sidebar-price__amount">
+                            <?php echo esc_html( '$' . number_format( $tk_price_from ) ); ?>
+                            <span class="tk-sidebar-price__unit"><?php esc_html_e( 'per person', 'trip-kailash' ); ?></span>
+                        </span>
+                        <p class="tk-sidebar-price__note">
+                            <?php esc_html_e( 'Per-person cost falls as the group grows.', 'trip-kailash' ); ?>
+                        </p>
+                        <a class="tk-sidebar-price__link" href="#booking">
+                            <?php esc_html_e( 'See group pricing', 'trip-kailash' ); ?> &rarr;
+                        </a>
+                    </div>
+                <?php endif; ?>
+
                 <?php if ( ! empty( $settings['nav_items'] ) ) : ?>
                     <nav class="tk-sidebar-nav">
                         <ul class="tk-sidebar-nav__list">
@@ -363,6 +395,62 @@ class Pilgrimage_Sidebar_Nav extends Widget_Base {
             font-size: 13px;
             color: #718096;
             font-weight: 400;
+        }
+
+        /* Transparent pricing panel */
+        .tk-sidebar-price {
+            padding: 18px 20px 16px;
+            border-bottom: 1px solid rgba(26, 27, 58, 0.08);
+            background:
+                radial-gradient(ellipse at 50% 0%, rgba(184, 134, 11, 0.13) 0%, transparent 70%),
+                transparent;
+        }
+
+        .tk-sidebar-price__label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: rgba(44, 43, 40, 0.62);
+            margin-bottom: 4px;
+        }
+
+        .tk-sidebar-price__amount {
+            display: block;
+            font-family: var(--tk-font-heading, Georgia, serif);
+            font-size: 30px;
+            line-height: 1.15;
+            color: var(--tk-shiva, #1A1B3A);
+        }
+
+        .tk-sidebar-price__unit {
+            font-family: var(--tk-font-body, sans-serif);
+            font-size: 13px;
+            color: rgba(44, 43, 40, 0.6);
+            margin-left: 4px;
+        }
+
+        .tk-sidebar-price__note {
+            margin: 8px 0 10px;
+            font-size: 13px;
+            line-height: 1.45;
+            color: rgba(44, 43, 40, 0.72);
+        }
+
+        .tk-sidebar-price__link {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            /* 4.64:1 on light backgrounds; see --tk-vishnu-text. */
+            color: var(--tk-vishnu-text, #C2410C);
+            text-decoration: none;
+        }
+
+        .tk-sidebar-price__link:hover {
+            color: #8F3D0A;
+            text-decoration: underline;
+            text-underline-offset: 3px;
         }
 
         /* Navigation */
