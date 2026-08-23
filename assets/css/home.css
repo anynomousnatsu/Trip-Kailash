@@ -850,3 +850,116 @@
   .tk-temple__meaning { max-height: 14em; opacity: 1; }
   .tk-temple__facts { opacity: 1; }
 }
+
+/* ======================================================================
+   THE KORA RING
+   The one interactive moment. Brass, and quiet until it is touched.
+   ====================================================================== */
+
+.tk-kora {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  margin-top: 8px;
+}
+
+.tk-kora__control {
+  position: relative;
+  display: block;
+  width: min(240px, 62vw);
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  /* A hold must not select text or start a scroll gesture underneath it. */
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.tk-kora__ring { display: block; width: 100%; height: 100%; }
+
+.tk-kora__groove {
+  fill: none;
+  stroke: var(--hair);
+  stroke-width: 2;
+}
+
+.tk-kora__path {
+  fill: none;
+  stroke: var(--brass-500);
+  stroke-width: 3;
+  stroke-linecap: round;
+  /* Starts at the top and travels clockwise, the direction the kora is walked
+     in every tradition but Bon. */
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+
+.tk-kora__mark {
+  fill: var(--sand-200);
+  stroke: var(--hair);
+  transition: fill var(--dur-base) var(--ease), r var(--dur-base) var(--ease);
+}
+
+.tk-kora__mark.is-lit { fill: var(--brass-500); stroke: var(--brass-500); }
+
+.tk-kora__centre {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.tk-kora__alt {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2rem, 6vw, 2.75rem);
+  line-height: 1;
+  color: var(--text-heading);
+}
+
+.tk-kora__unit {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--brass-600);
+}
+
+.tk-kora__place {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.tk-kora__readout {
+  margin: 0;
+  min-height: 3.4em;
+  max-width: 42ch;
+  text-align: center;
+  font-size: 16px;
+  color: var(--text-muted);
+  transition: color var(--dur-base) var(--ease);
+}
+
+.tk-kora.is-complete .tk-kora__readout {
+  color: var(--text-heading);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.4;
+}
+
+.tk-kora__control:focus-visible {
+  outline: none;
+  border-radius: 50%;
+  box-shadow: var(--ring-focus);
+}
