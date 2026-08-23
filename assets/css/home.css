@@ -125,3 +125,244 @@
   gap: 14px;
   margin-top: 34px;
 }
+
+/* ======================================================================
+   THE HERO
+
+   A tall pinned region with a sticky full-viewport stage inside it. Scroll
+   through the pinned region maps 0 to 1 and drives the video's time, so the
+   page settles exactly as the footage reaches its composed ending.
+
+   Sized in scroll distance, not seconds. A single 6-second shot wants about
+   400vh: under-size it and every caption flashes past no matter how well the
+   bands are tuned.
+   ====================================================================== */
+
+.tk-hero {
+  position: relative;
+  color: var(--sand-100);
+  background: var(--night-900);
+}
+
+.tk-hero__pin { position: relative; height: 400vh; }
+
+.tk-hero__stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.tk-hero__poster,
+.tk-hero__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tk-hero__poster {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Its own compositor layer, so the video's repaints never drag the rest of
+   the page while scrubbing. */
+.tk-hero__video {
+  opacity: 0;
+  will-change: transform;
+  transform: translateZ(0);
+  transition: opacity 420ms var(--ease);
+}
+
+.tk-hero.is-video-ready .tk-hero__video { opacity: 1; }
+
+/* Layer 1 of the legibility system: one soft radial darkening over the whole
+   frame, always on, so no frame is ever raw behind the page. */
+.tk-hero__scrim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 120% 90% at 50% 45%,
+    rgba(10, 8, 4, 0) 35%, rgba(10, 8, 4, .62) 100%);
+}
+
+/* The loading ring. An honest progress indicator, replaced by a scroll cue if
+   the stream stalls, because a stuck ring is worse than no ring. */
+.tk-hero__ring {
+  position: absolute;
+  right: 28px;
+  bottom: 28px;
+  width: 34px;
+  height: 34px;
+  color: var(--brass-300);
+  opacity: .85;
+  transform: rotate(-90deg);
+  transition: opacity 300ms var(--ease);
+}
+
+.tk-hero.is-video-ready .tk-hero__ring { opacity: 0; }
+
+.tk-hero__licence {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  padding: 16px 0 34px;
+  font-size: 13px;
+  color: rgba(245, 237, 223, .72);
+  border-top: 1px solid rgba(224, 196, 137, .2);
+}
+
+/* ---- The still --------------------------------------------------------
+   A composed layout, not an apology. Hidden while the scrub is armed.
+   ---------------------------------------------------------------------- */
+
+.tk-hero__still {
+  position: relative;
+  z-index: 2;
+  padding-block: 22vh 8vh;
+}
+
+.tk-hero__head {
+  color: #fff;
+  font-size: var(--text-4xl);
+  max-width: 17ch;
+  margin: 0;
+  text-shadow: 0 2px 40px rgba(14, 9, 4, .5);
+}
+
+.tk-hero__sub {
+  margin: 26px 0 0;
+  max-width: 50ch;
+  font-size: 18px;
+  color: rgba(245, 237, 223, .9);
+}
+
+/* In scrub mode the pinned stage carries the journey, so the still is out of
+   the way and out of the accessibility tree. */
+.tk-hero--scrub .tk-hero__still { display: none; }
+
+/* With no clip, the pin collapses and the still is the hero. */
+.tk-hero--still-only .tk-hero__pin { height: auto; }
+.tk-hero--still-only .tk-hero__stage { position: relative; height: auto; min-height: 92vh; }
+.tk-hero--still-only .tk-hero__still { position: absolute; inset: auto 0 0 0; }
+
+/* ---- THE FIVE STATIC-HERO GATES ---------------------------------------
+
+   These five conditions send a visitor to the still instead of the scrub.
+   They are listed here in the SAME ORDER as the GATES array in
+   assets/js/hero-scrub.js and must stay character for character identical,
+   or one side hides what the other side is still loading.
+
+   Commas are OR in a media query list, so this one block is the whole gate.
+
+     1  phones
+     2  portrait tablets
+     3  coarse-pointer portrait
+     4  landscape phones, which pass every width check but have no room
+     5  reduced motion
+
+   Gate 4 exists because a phone held sideways is 800px wide and 400px tall:
+   wide enough to look like a laptop, far too short for a journey.
+   ---------------------------------------------------------------------- */
+
+@media (max-width: 720px),
+       (orientation: portrait) and (max-width: 1024px),
+       (orientation: portrait) and (pointer: coarse),
+       (orientation: landscape) and (pointer: coarse) and (max-height: 560px),
+       (prefers-reduced-motion: reduce) {
+
+  .tk-hero__pin { height: auto; }
+
+  .tk-hero__stage {
+    position: relative;
+    height: auto;
+    min-height: 92vh;
+    align-items: flex-end;
+  }
+
+  .tk-hero__bands,
+  .tk-hero__ring { display: none; }
+
+  .tk-hero--scrub .tk-hero__still { display: block; }
+
+  .tk-hero__still {
+    padding-block: 0 6vh;
+    width: 100%;
+  }
+
+  .tk-hero__head { font-size: clamp(2.1rem, 8vw, 3.1rem); }
+}
+
+/* A scrub-capable screen that is merely short keeps the journey but loses the
+   ring, which has nowhere to sit. */
+@media (max-height: 560px) {
+  .tk-hero__ring { display: none; }
+}
+
+/* ======================================================================
+   CAPTION BANDS
+   Positioned in the footage's negative space. The action lane stays clear
+   and the words flank it. Opacity and the assembly variable --k are written
+   by hero-scrub.js; everything here is transform and opacity only.
+   ====================================================================== */
+
+.tk-hero__bands {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+
+.tk-band {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 14vh;
+  opacity: 0;
+  pointer-events: none;
+  text-shadow:
+    0 1px 2px rgba(5, 4, 2, .95),
+    0 3px 12px rgba(5, 4, 2, .78),
+    0 10px 44px rgba(5, 4, 2, .8);
+}
+
+.tk-band--settle { pointer-events: auto; }
+
+.tk-band__line {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 3.6vw, 3rem);
+  line-height: 1.16;
+  color: #fff;
+  max-width: 20ch;
+  margin: 0;
+}
+
+.tk-band__head {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(2rem, 4.6vw, 4rem);
+  line-height: 1.1;
+  color: #fff;
+  max-width: 17ch;
+  margin: 0;
+}
+
+.tk-band__sub {
+  margin: 22px 0 0;
+  max-width: 50ch;
+  font-size: 18px;
+  color: rgba(245, 237, 223, .92);
+}
+
+/* Buttons never carry the band's text shadow. A shadowed label on a solid
+   fill reads as grime. */
+.tk-band .tk-btn,
+.tk-band .tk-btn-ghost { text-shadow: none; }
