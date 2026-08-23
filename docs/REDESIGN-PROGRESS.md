@@ -62,7 +62,7 @@ Status key: `[ ]` not started · `[~]` in progress · `[x]` done and committed
 - [x] **3.3** `hero-scrub.js`: Blob fetch with ring, lerp, gated seeks, five live gates.
 - [x] **3.4** Hero legibility: four-layer scrim system, worst-frame tuning.
 - [x] **3.5** Tradition doors with three drawn geometries.
-- [ ] **3.6** The parikrama gallery, pinned horizontal with centre-proximity falloff.
+- [x] **3.6** The parikrama gallery, pinned horizontal with centre-proximity falloff.
 - [ ] **3.7** The kora ring, the one interactive moment.
 - [ ] **3.8** Departures, confirmation steps, lineage, guide cards.
 - [ ] **3.9** "Check us before you pay us" verification section.

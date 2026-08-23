@@ -620,3 +620,233 @@
   .tk-mark__b { stroke-dashoffset: 0; }
   .tk-mark__dot { opacity: 1; }
 }
+
+/* ======================================================================
+   THE PARIKRAMA
+   Night ground, pinned horizontal scroll, the signature section.
+
+   It fades in and out THROUGH the sand rather than butting against it. A
+   hard edge between the day ground and the night ground reads as a stripe,
+   which is exactly what makes a page look like stacked sections.
+   ====================================================================== */
+
+.tk-parikrama {
+  position: relative;
+  background: var(--night-900);
+  color: var(--text-on-deep);
+}
+
+.tk-parikrama::before,
+.tk-parikrama::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 130px;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.tk-parikrama::before {
+  top: 0;
+  background: linear-gradient(180deg, var(--sand-50), rgba(14, 9, 4, 0));
+}
+
+.tk-parikrama::after {
+  bottom: 0;
+  background: linear-gradient(0deg, var(--sand-50), rgba(14, 9, 4, 0));
+}
+
+.tk-parikrama__head {
+  position: relative;
+  z-index: 5;
+  padding-top: 130px;
+}
+
+.tk-parikrama__head .tk-sechead__title { color: #fff; }
+
+.tk-parikrama__foot {
+  position: relative;
+  z-index: 5;
+  padding-bottom: 130px;
+  text-align: center;
+}
+
+/* 520vh of pinned scroll, which gives each of five temples room to arrive,
+   hold and leave without any of them flashing past. */
+.tk-parikrama__pin { position: relative; height: 520vh; }
+
+.tk-parikrama__stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.tk-parikrama__track {
+  display: flex;
+  gap: 44px;
+  padding-inline: 6vw;
+  margin: 0;
+  list-style: none;
+  will-change: transform;
+}
+
+.tk-temple {
+  flex: 0 0 clamp(260px, 32vw, 420px);
+  /* Written by JS per frame; declared here so the first paint is not a jump */
+  filter: blur(0);
+  opacity: 1;
+  transition: filter 350ms var(--ease),
+              opacity 350ms var(--ease),
+              transform 350ms var(--ease);
+}
+
+.tk-temple__link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.tk-temple__frame {
+  display: block;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  border: 1px solid rgba(224, 196, 137, .22);
+  background: var(--night-700);
+}
+
+.tk-temple__img,
+.tk-temple__placeholder {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tk-temple__placeholder {
+  background:
+    repeating-linear-gradient(108deg, rgba(224, 196, 137, .08) 0 2px, transparent 2px 16px),
+    var(--night-700);
+}
+
+.tk-temple__name {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 26px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: #fff;
+  margin-top: 22px;
+}
+
+.tk-temple__traditions {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--brass-300);
+  margin-top: 10px;
+}
+
+/* The meaning and the facts belong to the active temple only. Collapsed by
+   max-height rather than display, so the reveal can ease. */
+.tk-temple__meaning {
+  display: block;
+  font-size: 16px;
+  color: rgba(245, 237, 223, .82);
+  margin-top: 14px;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 450ms var(--ease), opacity 350ms var(--ease);
+}
+
+.tk-temple__facts {
+  display: flex;
+  gap: 18px;
+  font-size: 14px;
+  color: rgba(245, 237, 223, .6);
+  margin-top: 14px;
+  opacity: 0;
+  transition: opacity 350ms var(--ease);
+}
+
+.tk-temple.is-active .tk-temple__meaning { max-height: 14em; opacity: 1; }
+.tk-temple.is-active .tk-temple__facts { opacity: 1; }
+
+/* ---- Phones and reduced motion ----------------------------------------
+
+   Below 900px the pinning is switched off ENTIRELY and the track becomes a
+   native horizontal swipe with scroll-snap. Pinned scroll-jacking on a phone
+   is reliably awful, and most of this traffic is phones.
+
+   The active-temple maths is unchanged: the same centre-proximity function
+   serves both modes, because whichever card is nearest the middle of the
+   screen is the one being looked at either way.
+   ---------------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .tk-parikrama__pin { height: auto; }
+
+  .tk-parikrama__stage {
+    position: static;
+    height: auto;
+    padding-block: 40px;
+    overflow: visible;
+  }
+
+  .tk-parikrama__track {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 24px;
+    padding-inline: 24px;
+    transform: none !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .tk-parikrama__track::-webkit-scrollbar { display: none; }
+
+  .tk-temple {
+    flex-basis: 78vw;
+    scroll-snap-align: center;
+  }
+
+  .tk-parikrama__head { padding-top: 90px; }
+  .tk-parikrama__foot { padding-bottom: 90px; }
+}
+
+/* Reduced motion gets a plain scrollable row with every temple expanded and
+   nothing blurred. Nobody has to move a mouse or a finger to read it. */
+@media (prefers-reduced-motion: reduce) {
+  .tk-parikrama__pin { height: auto; }
+
+  .tk-parikrama__stage {
+    position: static;
+    height: auto;
+    overflow: visible;
+    padding-block: 40px;
+  }
+
+  .tk-parikrama__track {
+    overflow-x: auto;
+    transform: none !important;
+  }
+
+  .tk-temple {
+    filter: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none;
+  }
+
+  .tk-temple__meaning { max-height: 14em; opacity: 1; }
+  .tk-temple__facts { opacity: 1; }
+}

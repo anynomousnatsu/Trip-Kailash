@@ -98,6 +98,15 @@ function trip_kailash_enqueue_assets() {
             TRIP_KAILASH_VERSION,
             true
         );
+
+        // The pinned temple gallery.
+        wp_enqueue_script(
+            'trip-kailash-parikrama',
+            TRIP_KAILASH_URI . '/assets/js/parikrama.js',
+            array(),
+            TRIP_KAILASH_VERSION,
+            true
+        );
     }
 
     // Enqueue JavaScript files
