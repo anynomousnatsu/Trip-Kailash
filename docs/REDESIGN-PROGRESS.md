@@ -30,7 +30,7 @@ Status key: `[ ]` not started · `[~]` in progress · `[x]` done and committed
       Files: `inc/taxonomies.php`
 - [x] **2.2** Package fields: pricing, trip facts, departures, content.
       Files: `inc/custom-post-types.php`
-- [ ] **2.3** Admin UI for the new fields, including itinerary and departure repeaters.
+- [x] **2.3** Admin UI for the new fields, including itinerary and departure repeaters.
       Files: `inc/custom-post-types.php`, `assets/js/admin-repeater.js`
 - [ ] **2.4** `?deity=` to `?tradition=` migration with 301s.
       Files: `inc/seo.php`
