@@ -1,0 +1,127 @@
+/**
+ * Trip Kailash homepage
+ *
+ * Loaded on the front page only. Section-specific rules live here; anything
+ * reusable belongs in components.css.
+ *
+ * The running order is in front-page.php. Section rhythm is set once, at the
+ * top of this file, rather than per section, because inconsistent vertical
+ * spacing between sections is the single most common way a page stops looking
+ * designed.
+ */
+
+/* ======================================================================
+   RHYTHM AND CONTAINER
+   ====================================================================== */
+
+.tk-home { display: block; }
+
+.tk-wrap {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: 24px;
+}
+
+.tk-section { padding-block: 88px; }
+
+@media (min-width: 900px) {
+  .tk-section { padding-block: 128px; }
+}
+
+/* ======================================================================
+   SECTION HEADING
+   Eyebrow, display heading, brass rule. The rule is the one ornament in
+   the system and it draws itself; the motion lives in motion.css.
+   ====================================================================== */
+
+.tk-sechead { margin-bottom: 44px; }
+
+.tk-sechead--center {
+  text-align: center;
+  max-width: 62ch;
+  margin-inline: auto;
+}
+
+.tk-sechead--center .tk-rule {
+  max-width: 120px;
+  margin-inline: auto;
+}
+
+.tk-eyebrow {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--brass-600);
+  margin: 0 0 14px;
+}
+
+.tk-deep .tk-eyebrow { color: var(--brass-300); }
+
+.tk-sechead__title {
+  font-size: var(--text-2xl);
+  max-width: 22ch;
+  margin: 0;
+}
+
+.tk-sechead--center .tk-sechead__title {
+  max-width: none;
+  margin-inline: auto;
+}
+
+/* ======================================================================
+   BUTTONS
+   Vermilion is the booking action and nothing else. Everything else that
+   is clickable and not booking takes the ghost.
+   ====================================================================== */
+
+.tk-btn,
+.tk-btn-ghost {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease),
+              color var(--dur-fast) var(--ease);
+}
+
+.tk-btn {
+  background: var(--action);
+  color: var(--action-text);
+  border: 1px solid var(--action);
+  padding: 15px 34px;
+}
+
+.tk-btn:hover { background: var(--action-hover); border-color: var(--action-hover); }
+.tk-btn:active { background: var(--action-press); border-color: var(--action-press); }
+
+.tk-btn-ghost {
+  background: transparent;
+  color: var(--text-body);
+  border: 1px solid var(--solid);
+  padding: 14px 28px;
+}
+
+.tk-btn-ghost:hover { border-color: var(--brass-500); color: var(--brass-600); }
+
+.tk-deep .tk-btn-ghost {
+  color: var(--brass-300);
+  border-color: rgba(224, 196, 137, .5);
+}
+
+.tk-deep .tk-btn-ghost:hover { border-color: var(--brass-300); color: #fff; }
+
+.tk-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 34px;
+}

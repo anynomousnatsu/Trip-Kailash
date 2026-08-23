@@ -68,6 +68,25 @@ function trip_kailash_enqueue_assets() {
         );
     }
 
+    /*
+     * Homepage styles, on the homepage only.
+     *
+     * Loaded after the Elementor overrides so the front page can win without
+     * escalating specificity, and conditionally because the pinned gallery
+     * and kora ring rules are dead weight on every other page.
+     */
+    if ( is_front_page() ) {
+        $home_deps = array( 'trip-kailash-seo' );
+
+        wp_enqueue_style(
+            'trip-kailash-home',
+            TRIP_KAILASH_URI . '/assets/css/home.css',
+            $home_deps,
+            TRIP_KAILASH_VERSION,
+            'all'
+        );
+    }
+
     // Enqueue JavaScript files
     // Overlay script for package details
     wp_enqueue_script(

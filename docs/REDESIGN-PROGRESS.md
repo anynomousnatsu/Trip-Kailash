@@ -57,7 +57,7 @@ Status key: `[ ]` not started · `[~]` in progress · `[x]` done and committed
 
 ## Phase 3 — Homepage
 
-- [ ] **3.1** `front-page.php` skeleton and section scaffolding.
+- [x] **3.1** `front-page.php` skeleton and section scaffolding.
 - [ ] **3.2** Hero markup, caption bands, designed static hero.
 - [ ] **3.3** `hero-scrub.js`: Blob fetch with ring, lerp, gated seeks, five live gates.
 - [ ] **3.4** Hero legibility: four-layer scrim system, worst-frame tuning.

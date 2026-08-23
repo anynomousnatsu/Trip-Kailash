@@ -75,6 +75,7 @@ require_once TRIP_KAILASH_DIR . '/inc/enqueue.php';
 require_once TRIP_KAILASH_DIR . '/inc/custom-post-types.php';
 require_once TRIP_KAILASH_DIR . '/inc/package-fields.php';
 require_once TRIP_KAILASH_DIR . '/inc/package-admin.php';
+require_once TRIP_KAILASH_DIR . '/inc/template-tags.php';
 require_once TRIP_KAILASH_DIR . '/inc/taxonomies.php';
 require_once TRIP_KAILASH_DIR . '/inc/rest-api.php';
 require_once TRIP_KAILASH_DIR . '/inc/form-handler.php';
