@@ -65,7 +65,7 @@ Status key: `[ ]` not started · `[~]` in progress · `[x]` done and committed
 - [x] **3.6** The parikrama gallery, pinned horizontal with centre-proximity falloff.
 - [x] **3.7** The kora ring, the one interactive moment.
 - [x] **3.8** Departures, confirmation steps, lineage, guide cards.
-- [ ] **3.9** "Check us before you pay us" verification section.
+- [x] **3.9** "Check us before you pay us" verification section.
 - [ ] **3.10** The parikrama line, the signature scroll-drawn SVG.
 
 ## Phase 4 — Package template

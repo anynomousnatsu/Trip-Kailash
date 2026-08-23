@@ -1142,3 +1142,81 @@
 
 .tk-guide-card__title { font-size: var(--text-lg); margin: 0 0 8px; }
 .tk-guide-card__body { margin: 0; font-size: 15px; color: var(--text-muted); }
+
+/* ======================================================================
+   CHECK US BEFORE YOU PAY US
+
+   Deliberately the plainest section on the page. Every other section is
+   trying to move someone; this one is trying to be checked, and anything
+   decorative here would undercut it. It reads like a document because it is
+   meant to be treated as one.
+   ====================================================================== */
+
+.tk-verify { background: var(--bg-raised); }
+
+.tk-verify__lede p {
+  max-width: var(--measure);
+  margin: 0 0 14px;
+}
+
+.tk-verify__list {
+  list-style: none;
+  margin: 34px 0 0;
+  padding: 0;
+  border-top: 1px solid var(--hair);
+  max-width: 880px;
+}
+
+.tk-verify__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.7fr) minmax(0, 1.3fr);
+  gap: 8px 24px;
+  align-items: baseline;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--hair);
+}
+
+@media (max-width: 720px) {
+  .tk-verify__row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
+
+.tk-verify__what {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-heading);
+}
+
+.tk-verify__value {
+  font-size: 17px;
+  color: var(--text-heading);
+  letter-spacing: .02em;
+}
+
+.tk-verify__where { font-size: 15px; color: var(--text-muted); }
+.tk-verify__where a { color: var(--brass-600); }
+
+.tk-verify__office {
+  margin: 26px 0 0;
+  max-width: var(--measure);
+  color: var(--text-muted);
+}
+
+.tk-verify__office strong { color: var(--text-heading); }
+
+/* The closing line is the whole section in one sentence, so it carries the
+   display face and sits alone. */
+.tk-verify__close {
+  margin: 34px 0 0;
+  max-width: 46ch;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.15rem, 1.8vw, 1.5rem);
+  line-height: 1.35;
+  color: var(--text-heading);
+}
