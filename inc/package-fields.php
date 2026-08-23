@@ -452,3 +452,63 @@ function tk_package_grading($post_id = null)
         'token' => isset($tokens[$key]) ? $tokens[$key] : 'var(--grade-moderate)',
     );
 }
+
+/**
+ * The narrative overview for a package.
+ *
+ * Prose belongs in post_content. Specs do not, which is the whole point of
+ * the field schema above.
+ *
+ * The guard matters during migration. These packages are still Elementor
+ * documents, and calling the_content() on one returns the entire stored
+ * layout, which is 88 to 120 KB of markup built for a page this template no
+ * longer renders. Printing that inside the new design would look like a bug
+ * and weigh more than every other asset on the page combined.
+ *
+ * So an Elementor-built package returns nothing here and the overview section
+ * simply does not render, until its prose is moved across. A missing section
+ * is recoverable; a page that dumps a dead layout into the middle of the new
+ * design is not.
+ *
+ * @param int|null $post_id
+ * @return string Rendered HTML, or an empty string.
+ */
+function tk_package_overview($post_id = null)
+{
+    $post_id = $post_id ? $post_id : get_the_ID();
+
+    if (class_exists('\Elementor\Plugin') && \Elementor\Plugin::$instance->documents) {
+        $document = \Elementor\Plugin::$instance->documents->get($post_id);
+
+        if ($document && $document->is_built_with_elementor()) {
+            return '';
+        }
+    }
+
+    $content = get_post_field('post_content', $post_id);
+
+    if ('' === trim((string) $content)) {
+        return '';
+    }
+
+    return apply_filters('the_content', $content);
+}
+
+/**
+ * Whether a package still needs its prose migrating off Elementor.
+ *
+ * Used by the admin notice so nobody has to guess which packages are done.
+ *
+ * @param int $post_id
+ * @return bool
+ */
+function tk_package_needs_migration($post_id)
+{
+    if (!class_exists('\Elementor\Plugin') || !\Elementor\Plugin::$instance->documents) {
+        return false;
+    }
+
+    $document = \Elementor\Plugin::$instance->documents->get($post_id);
+
+    return $document && $document->is_built_with_elementor();
+}

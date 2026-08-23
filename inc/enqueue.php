@@ -127,6 +127,20 @@ function trip_kailash_enqueue_assets() {
         );
     }
 
+    /*
+     * Package page assets, on single packages only. The template renders
+     * entirely from fields, so none of this is needed anywhere else.
+     */
+    if ( is_singular( 'pilgrimage_package' ) ) {
+        wp_enqueue_style(
+            'trip-kailash-package',
+            TRIP_KAILASH_URI . '/assets/css/package.css',
+            array( 'trip-kailash-seo' ),
+            TRIP_KAILASH_VERSION,
+            'all'
+        );
+    }
+
     // Enqueue JavaScript files
     // Overlay script for package details
     wp_enqueue_script(
@@ -182,6 +196,16 @@ function trip_kailash_enqueue_assets() {
         TRIP_KAILASH_VERSION,
         true
     );
+
+    if ( is_singular( 'pilgrimage_package' ) ) {
+        wp_enqueue_script(
+            'trip-kailash-package',
+            TRIP_KAILASH_URI . '/assets/js/package.js',
+            array( 'trip-kailash-main' ),
+            TRIP_KAILASH_VERSION,
+            true
+        );
+    }
 
     // Pass PHP data to JavaScript
     wp_localize_script(
