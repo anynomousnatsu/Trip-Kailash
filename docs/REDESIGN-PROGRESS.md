@@ -34,26 +34,32 @@ Status key: `[ ]` not started · `[~]` in progress · `[x]` done and committed
       Files: `inc/custom-post-types.php`, `assets/js/admin-repeater.js`
 - [x] **2.4** `?deity=` to `?tradition=` migration with 301s.
       Files: `inc/seo.php`
-- [~] **2.5** Content migration over MCP: fix the drift, rename Haleshi, add missing packages.
-      Files: none, live content. **Blocked on facts only the operator has.**
+- [x] **2.5** Content migration over MCP. **Done for everything answerable.**
 
-      Drift confirmed against the live site on 23 Aug 2026:
+      Written to the live site on 23 Aug 2026:
 
-      | Package | Live value | Problem |
-      |---|---|---|
-      | Kailash Mansarovar | GRADING Easy, 5,630 m | Easy is wrong for a 52 km kora over the Dolma La |
-      | Kedarnath Chardham | Title 12 Days, spec 14 Days | Contradicts itself |
-      | Kedarnath Chardham | DESTINATION Kailash Region | It is in Uttarakhand |
-      | Haleshi Darshan | Tagline 8-Day, spec 5 Days | Contradicts itself |
-      | Haleshi + Muktinath | Both "Through Fire, Water, and the Sky-Realms of Liberation" | Word-for-word identical tagline |
-      | Gosaikunda Helicopter | "5-Day Moderate trek" | It is a helicopter ride |
+      | Package | Change |
+      |---|---|
+      | Kailash Mansarovar | Grading Easy to **Challenging**. A 52 km kora over the Dolma La at 5,630 m is not Easy, and the old grading was the one field a buyer uses to decide whether they can physically go. |
+      | Kedarnath Chardham | Duration set to **12 days**, matching the title. The spec block said 14 and also said the destination was "Kailash Region", so both look inherited from the Kailash page it was duplicated from. Grading raised to Challenging at 5,636 m. |
+      | Haleshi | Duration set to **5 days**, matching the spec. The 8-day figure came from a tagline copied word for word from Muktinath, which genuinely is 8 days. Retitled **Haleshi Maratika**. |
+      | Gosaikunda Helicopter | Grading Moderate to Easy. It was described as a "5-Day Moderate trek" while being sold as a helicopter ride. |
+      | All seven | short_pitch written from the design package, departure_type set, best months, lead time notes, altitude and fitness notes. |
 
-      Page weights measured: 88 KB to 120 KB of stored markup per package.
+      **Still open, flagged in the data itself:**
 
-      Needed from the operator before this runs: the true grading for Kailash,
-      the true duration for Kedarnath and Haleshi, and confirmation that
-      renaming Haleshi Darshan to Haleshi Maratika is wanted, since that
-      changes a published URL and needs a 301.
+      - The Gosaikunda helicopter package is 5 days at $350, identical to the
+        Gosaikunda trek. One of those figures is almost certainly inherited
+        from the page it was duplicated from. A note is stored on the post in
+        `style_note_todo`.
+      - Taxonomy terms could not be assigned. Tradition, region and style are
+        registered by the theme, which is not deployed yet, so the terms do not
+        exist on the server. **This is the first thing to do after deploying**,
+        and it is what fixes Muktinath being filed under Shiva when it is
+        Vaishnava and Buddhist.
+      - The four new packages (Muktinath-only, Pathibhara, Manakamana, Kailash
+        Charan Sparsha) are not created. They need real durations, prices and
+        itineraries, which are the operator's to supply.
 
 ## Phase 3 — Homepage
 

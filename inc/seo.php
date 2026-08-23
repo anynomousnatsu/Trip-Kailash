@@ -50,6 +50,26 @@ function tk_redirect_retired_urls()
     $retired = array(
         // Default WordPress sample post, removed 2026-08-23.
         '/hello-world' => '/',
+
+        /*
+         * NOT a redirect yet, and deliberately so.
+         *
+         * Haleshi Darshan was retitled Haleshi Maratika on 2026-08-23, because
+         * Haleshi IS Maratika: the cave where Padmasambhava and Mandarava
+         * attained deathlessness, and one of the most significant Nyingma
+         * sites anywhere. Under the old name it was invisible to every Tibetan
+         * Buddhist pilgrim searching for it, which is a market generating no
+         * traffic at all.
+         *
+         * The TITLE changed; the slug did not. So the live URL is still
+         * /packages/haleshi-darshan and it must keep resolving. Adding a
+         * redirect here now would point the live page at a 404.
+         *
+         * If the slug is ever changed to haleshi-maratika for the keyword,
+         * add the redirect in the same commit:
+         *
+         *     '/packages/haleshi-darshan' => '/packages/haleshi-maratika',
+         */
     );
 
     $path = wp_parse_url(add_query_arg(array()), PHP_URL_PATH);
