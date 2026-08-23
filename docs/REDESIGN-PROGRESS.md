@@ -91,8 +91,37 @@ Status key: `[ ]` not started · `[~]` in progress · `[x]` done and committed
 ## Phase 7 — Ship
 
 - [x] **7.1** Lint, copy gate, version bump.
-- [ ] **7.2** Upload to Hostinger, purge LiteSpeed.
+- [~] **7.2** Upload to Hostinger, purge LiteSpeed. **Needs a human.**
+
+      The Royal MCP connector can write content, fields, terms and menus, but
+      it cannot write theme PHP, CSS or JS. There is no automated deploy
+      either; CI only syntax-checks. So the files reach the server one of two
+      ways:
+
+      **Either** pull the branch on the server, if the theme directory is a git
+      checkout:
+
+      ```
+      cd wp-content/themes/Trip-Kailash
+      git fetch origin && git checkout redesign/parikrama
+      ```
+
+      **Or** upload through hPanel File Manager or SFTP into
+      `wp-content/themes/Trip-Kailash/`, replacing the whole directory. The
+      capitalisation matters: WordPress resolves the theme by directory name
+      and the host is case-sensitive.
+
+      Then purge LiteSpeed, or the old CSS keeps being served.
+
+      Before uploading, take a backup. Two things change the moment the files
+      land: `front-page.php` takes the homepage off Elementor, and
+      `single-pilgrimage_package.php` takes over the package pages. Both are
+      reversible by putting the old theme back, but not by clicking undo.
+
 - [ ] **7.3** Self-test checklist and speed receipts on the live site.
+      Runs after 7.2. `bin/copy-gate.sh`, `bin/check-hero-gates.py`, the flick
+      test on the hero beat map, the worst-frame legibility audit, and curl
+      timings for the speed receipts.
 
 ---
 
