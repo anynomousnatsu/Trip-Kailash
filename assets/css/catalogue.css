@@ -209,3 +209,9 @@
 }
 
 .tk-card:hover .tk-card__more { color: var(--verm-500); }
+
+/* The doors sit inside the catalogue page, so they lose the section's own
+   top padding and hand it to the filters below. */
+.tk-catalogue .tk-doors-section { padding-block: 40px 72px; }
+.tk-catalogue__list { padding-bottom: 96px; }
+.tk-catalogue__prose { padding-bottom: 96px; }
