@@ -34,8 +34,26 @@ Status key: `[ ]` not started · `[~]` in progress · `[x]` done and committed
       Files: `inc/custom-post-types.php`, `assets/js/admin-repeater.js`
 - [x] **2.4** `?deity=` to `?tradition=` migration with 301s.
       Files: `inc/seo.php`
-- [ ] **2.5** Content migration over MCP: fix the drift, rename Haleshi, add missing packages.
-      Files: none, live content
+- [~] **2.5** Content migration over MCP: fix the drift, rename Haleshi, add missing packages.
+      Files: none, live content. **Blocked on facts only the operator has.**
+
+      Drift confirmed against the live site on 23 Aug 2026:
+
+      | Package | Live value | Problem |
+      |---|---|---|
+      | Kailash Mansarovar | GRADING Easy, 5,630 m | Easy is wrong for a 52 km kora over the Dolma La |
+      | Kedarnath Chardham | Title 12 Days, spec 14 Days | Contradicts itself |
+      | Kedarnath Chardham | DESTINATION Kailash Region | It is in Uttarakhand |
+      | Haleshi Darshan | Tagline 8-Day, spec 5 Days | Contradicts itself |
+      | Haleshi + Muktinath | Both "Through Fire, Water, and the Sky-Realms of Liberation" | Word-for-word identical tagline |
+      | Gosaikunda Helicopter | "5-Day Moderate trek" | It is a helicopter ride |
+
+      Page weights measured: 88 KB to 120 KB of stored markup per package.
+
+      Needed from the operator before this runs: the true grading for Kailash,
+      the true duration for Kedarnath and Haleshi, and confirmation that
+      renaming Haleshi Darshan to Haleshi Maratika is wanted, since that
+      changes a published URL and needs a 301.
 
 ## Phase 3 — Homepage
 
