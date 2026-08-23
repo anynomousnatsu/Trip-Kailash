@@ -28,7 +28,7 @@ Status key: `[ ]` not started · `[~]` in progress · `[x]` done and committed
 
 - [x] **2.1** Tradition, Region and Style taxonomies alongside the existing `deity`.
       Files: `inc/taxonomies.php`
-- [ ] **2.2** Package fields: pricing, trip facts, departures, content.
+- [x] **2.2** Package fields: pricing, trip facts, departures, content.
       Files: `inc/custom-post-types.php`
 - [ ] **2.3** Admin UI for the new fields, including itinerary and departure repeaters.
       Files: `inc/custom-post-types.php`, `assets/js/admin-repeater.js`
