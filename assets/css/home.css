@@ -366,3 +366,149 @@
    fill reads as grime. */
 .tk-band .tk-btn,
 .tk-band .tk-btn-ghost { text-shadow: none; }
+
+/* ======================================================================
+   LEGIBILITY, LAYER 2: THE PER-BAND SCRIM
+
+   Live video behind type is a moving background nobody controls frame to
+   frame. Layer 1 is the global scrim on the stage. This is layer 2: each
+   band carries its own radial darkening that rides that band's opacity and
+   deepens with its --k, so the footage dims exactly while that band's words
+   are on and nowhere else.
+
+   Dim, never flatten. The gradient dies out by 76 percent so the corners of
+   the frame stay live and the shot still reads as footage.
+
+   The peak alphas here are starting points. They get tuned against each
+   band's own WORST frame, never its average: the average frame lies, and the
+   worst frame is the one a visitor will be mid-sentence on.
+   ====================================================================== */
+
+.tk-band::before {
+  content: "";
+  position: absolute;
+  inset: -6% -4%;
+  z-index: -1;
+  pointer-events: none;
+  opacity: calc(.25 + .75 * var(--k, 1));
+  background: radial-gradient(ellipse 74% 62% at 30% 50%,
+    rgba(5, 4, 2, .66) 0%,
+    rgba(5, 4, 2, .44) 46%,
+    rgba(5, 4, 2, 0) 76%);
+}
+
+/* The opening beat runs deepest: it carries the largest type over the
+   brightest part of the shot, where first light is finding the rock. */
+.tk-band:first-child::before {
+  background: radial-gradient(ellipse 76% 64% at 30% 50%,
+    rgba(5, 4, 2, .72) 0%,
+    rgba(5, 4, 2, .48) 46%,
+    rgba(5, 4, 2, 0) 76%);
+}
+
+/* The settle spans the full width, so its scrim is centred rather than
+   weighted to the text column. */
+.tk-band--settle::before {
+  background: radial-gradient(ellipse 88% 70% at 50% 56%,
+    rgba(5, 4, 2, .70) 0%,
+    rgba(5, 4, 2, .46) 48%,
+    rgba(5, 4, 2, 0) 78%);
+}
+
+/* ======================================================================
+   LEGIBILITY, LAYER 4: THE CHIP
+
+   Small text over footage does not get the big radial. HUD lines, readouts
+   and labels get a small blurred backing pill instead, because a radial
+   scrim sized for one short line dims half the frame to no purpose.
+   ====================================================================== */
+
+.tk-chip {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: var(--r-lg);
+  background: rgba(8, 6, 3, .55);
+  border: 1px solid rgba(224, 196, 137, .3);
+  backdrop-filter: blur(10px);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--brass-300);
+  text-shadow: 0 1px 3px rgba(5, 4, 2, .85);
+}
+
+/* ======================================================================
+   BAND ENTRANCES
+
+   The echo principle: each beat's entrance does to the words what the
+   footage is doing at that moment, so entrance and footage read as one
+   event rather than as decoration laid over film.
+
+   All of it is transform and opacity only, scrubbed off --k, and fully
+   reversible. Scroll up and they disassemble.
+   ====================================================================== */
+
+.tk-band__line,
+.tk-band__head,
+.tk-band__sub {
+  will-change: transform, opacity;
+}
+
+/* Rise. The opening beat: words lift into place as the light arrives. */
+.tk-band[data-entrance="rise"] .tk-band__line {
+  opacity: var(--k, 1);
+  transform: translateY(calc((1 - var(--k, 1)) * 20px));
+}
+
+/* Drift-down. Echoes the prayer flags moving in the shot: the words fall
+   into place rather than rising into it. */
+.tk-band[data-entrance="drift"] .tk-band__line {
+  opacity: var(--k, 1);
+  transform: translateY(calc((1 - var(--k, 1)) * -24px));
+}
+
+/* Blur-to-sharp, for the beat at the pass where the haze clears. Two stacked
+   copies crossfaded by opacity: the soft copy carries a STATIC blur, because
+   animating filter is not compositor-friendly and stutters. */
+.tk-band[data-entrance="focus"] .tk-band__line {
+  position: relative;
+  opacity: var(--k, 1);
+}
+
+.tk-band[data-entrance="focus"] .tk-band__line::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  filter: blur(10px);
+  opacity: calc(1 - var(--k, 1));
+  pointer-events: none;
+}
+
+/* The settle: three arrivals in one band. The headline lands first, the
+   subline at --k 0.66, the actions at 0.78, so the page comes to rest in
+   sequence rather than all at once. */
+.tk-band--settle .tk-band__head {
+  opacity: var(--k, 1);
+  transform: translateY(calc((1 - var(--k, 1)) * 18px));
+}
+
+.tk-band--settle .tk-band__sub {
+  --ks: clamp(0, (var(--k, 1) - .66) * 4, 1);
+  opacity: var(--ks);
+  transform: translateY(calc((1 - var(--ks)) * 14px));
+}
+
+.tk-band--settle .tk-actions {
+  --kb: clamp(0, (var(--k, 1) - .78) * 5, 1);
+  opacity: var(--kb);
+  transform: translateY(calc((1 - var(--kb)) * 12px));
+}
+
+/* Reduced motion never reaches these, because the whole scrub is gated off,
+   but a browser without clamp() support would leave the settle invisible. */
+@supports not (width: clamp(1px, 1vw, 2px)) {
+  .tk-band--settle .tk-band__sub,
+  .tk-band--settle .tk-actions { opacity: 1; transform: none; }
+}

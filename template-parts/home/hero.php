@@ -60,6 +60,8 @@ $tk_classes = 'tk-hero' . ($tk_has_scrub ? ' tk-hero--scrub' : ' tk-hero--still-
 	data-bytes="<?php echo esc_attr($tk_video_bytes); ?>"
 	<?php endif; ?>>
 
+	<h1 class="tk-sr-only">Walk the sacred paths of Nepal with people who know the rituals</h1>
+
 	<div class="tk-hero__pin">
 		<div class="tk-hero__stage">
 
@@ -87,17 +89,17 @@ $tk_classes = 'tk-hero' . ($tk_has_scrub ? ' tk-hero--scrub' : ' tk-hero--still-
 			<div class="tk-hero__scrim" aria-hidden="true"></div>
 
 			<?php if ($tk_has_scrub) : ?>
-			<div class="tk-hero__bands" aria-hidden="true">
+			<div class="tk-hero__bands">
 
 				<?php /* Band ranges are starting points from the design package,
 				         validated later by the flick test at 120, 240 and 360px
 				         wheel steps. Copy ships verbatim. */ ?>
 
-				<div class="tk-band" data-from="0" data-to="0.16" data-entrance="rise">
+				<div class="tk-band" aria-hidden="true" data-from="0" data-to="0.16" data-entrance="rise">
 					<p class="tk-band__line">Some mountains are climbed. This one is walked around.</p>
 				</div>
 
-				<div class="tk-band" data-from="0.20" data-to="0.42" data-entrance="drift">
+				<div class="tk-band" aria-hidden="true" data-from="0.20" data-to="0.42" data-entrance="drift">
 					<p class="tk-band__line">Fifty-two kilometres. One circle. Four faiths walking the same line.</p>
 				</div>
 
@@ -112,8 +114,8 @@ $tk_classes = 'tk-hero' . ($tk_has_scrub ? ' tk-hero--scrub' : ' tk-hero--still-
 				$tk_merit_confirmed = (bool) get_theme_mod('tk_merit_figure_confirmed', false);
 				?>
 				<?php if ($tk_merit_confirmed) : ?>
-				<div class="tk-band" data-from="0.46" data-to="0.68" data-entrance="focus">
-					<p class="tk-band__line">Walked in a Horse Year, this circle counts thirteen times.</p>
+				<div class="tk-band" aria-hidden="true" data-from="0.46" data-to="0.68" data-entrance="focus">
+					<p class="tk-band__line" data-text="Walked in a Horse Year, this circle counts thirteen times.">Walked in a Horse Year, this circle counts thirteen times.</p>
 				</div>
 				<?php endif; ?>
 
@@ -121,6 +123,10 @@ $tk_classes = 'tk-hero' . ($tk_has_scrub ? ' tk-hero--scrub' : ' tk-hero--still-
 					<p class="tk-band__head">Walk the sacred paths of Nepal with people who know the rituals</p>
 					<p class="tk-band__sub">Muktinath, Gosaikunda, Haleshi and Kailash, led by guides who
 						understand what you have come to do, not only how to get you there.</p>
+					<div class="tk-actions">
+						<a class="tk-btn" href="#paths">Find your yatra</a>
+						<a class="tk-btn-ghost" href="#departures">Kailash, and which year to walk it</a>
+					</div>
 				</div>
 			</div>
 			<?php endif; ?>
@@ -138,7 +144,7 @@ $tk_classes = 'tk-hero' . ($tk_has_scrub ? ' tk-hero--scrub' : ' tk-hero--still-
 	<div class="tk-hero__still">
 		<div class="tk-wrap">
 			<p class="tk-eyebrow">Pilgrimage in Nepal and Tibet</p>
-			<h1 class="tk-hero__head">Walk the sacred paths of Nepal with people who know the rituals</h1>
+			<p class="tk-hero__head">Walk the sacred paths of Nepal with people who know the rituals</p>
 			<p class="tk-hero__sub">Muktinath, Gosaikunda, Haleshi and Kailash, led by guides who
 				understand what you have come to do, not only how to get you there.</p>
 			<div class="tk-actions">
