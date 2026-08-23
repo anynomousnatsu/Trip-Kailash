@@ -32,18 +32,34 @@
     }
   }
 
-  /* The per-person price at this party size: the best tier they qualify for,
-     or the base price if they qualify for none. */
+  /* The per-person price at this party size.
+   *
+   * Tiers are the real rates by group size, and the headline price_from is
+   * the marketing figure, which is normally the LARGEST group's rate. So the
+   * tier that applies is the highest threshold the party actually reaches,
+   * not whichever number happens to be smallest.
+   *
+   * Getting this backwards quoted a solo pilgrim the ten-person rate, which
+   * is the kind of error that is only discovered when someone is invoiced for
+   * twice what the page told them.
+   */
   function priceEach(count, base, tiers) {
-    var best = base;
+    var chosen = null;
+    var chosenMin = -1;
 
     tiers.forEach(function (tier) {
       var min = parseFloat(tier.min_pax);
       var price = parseFloat(tier.price);
-      if (!isNaN(min) && !isNaN(price) && count >= min && price < best) best = price;
+
+      if (isNaN(min) || isNaN(price)) return;
+
+      if (count >= min && min > chosenMin) {
+        chosenMin = min;
+        chosen = price;
+      }
     });
 
-    return best;
+    return chosen === null ? base : chosen;
   }
 
   function money(value) {
@@ -76,9 +92,11 @@
     sub.textContent = money(deposit) + ' ' + totalEl.getAttribute('data-label-deposit');
     totalEl.appendChild(sub);
 
-    /* Say out loud that the group rate applied, or the number looks like a
-       mistake to someone who read the tier table two inches above. */
-    if (each < base) {
+    /* Always state the per-person rate when it differs from the headline,
+       in BOTH directions. A solo pilgrim seeing "From $350" needs to be told
+       plainly that their own rate is $650 before they send an enquiry, not
+       after they get the invoice. */
+    if (each !== base) {
       var saved = document.createElement('span');
       saved.className = 'tk-reserve__total-sub';
       saved.textContent = money(each) + ' each at this group size';
