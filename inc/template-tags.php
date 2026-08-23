@@ -124,3 +124,61 @@ function tk_plural($count, $singular, $plural)
 {
     return sprintf('%d %s', $count, 1 === (int) $count ? $singular : $plural);
 }
+
+/**
+ * The drawn mark for one tradition.
+ *
+ * Four genuinely different figures, not one icon recoloured. A torana is an
+ * arch you walk through, a dharma wheel is a circle you go around, a shaligram
+ * is a faceted stone you hold, and a yantra is a diagram you sit in front of.
+ * Recolouring a single glyph four times would say these are four flavours of
+ * the same thing, which is the one claim this site must not make.
+ *
+ * Each draws its stroke on scroll: the outer figure first, the inner one
+ * behind it, so the mark assembles rather than appearing.
+ *
+ * @param string $slug Tradition term slug.
+ * @return void
+ */
+function tk_tradition_geometry($slug)
+{
+    $marks = array(
+
+        // Torana: the arched temple door frame you pass through.
+        'shaiva' =>
+            '<path class="tk-mark__a" d="M9 86 L9 42 A29 29 0 0 1 67 42 L67 86" />' .
+            '<path class="tk-mark__b" d="M20 86 L20 44 A18 18 0 0 1 56 44 L56 86" />' .
+            '<path class="tk-mark__a" d="M29 27 L47 27" />' .
+            '<circle class="tk-mark__dot" cx="38" cy="15" r="4.5" />',
+
+        // Dharma wheel: the circle walked, with its eight spokes.
+        'buddhist' =>
+            '<circle class="tk-mark__a" cx="38" cy="45" r="29" />' .
+            '<circle class="tk-mark__b" cx="38" cy="45" r="18" />' .
+            '<path class="tk-mark__a" d="M9 45 L67 45 M38 16 L38 74 M17 24 L59 66 M59 24 L17 66" />' .
+            '<circle class="tk-mark__dot" cx="38" cy="45" r="5.5" />',
+
+        // Shaligram: the faceted ammonite stone from the Kali Gandaki.
+        'vaishnava' =>
+            '<path class="tk-mark__a" d="M38 13 L61 31 L52 68 L24 68 L15 31 Z" />' .
+            '<path class="tk-mark__b" d="M38 26 L50 36 L45 60 L31 60 L26 36 Z" />' .
+            '<path class="tk-mark__a" d="M21 78 L55 78" />' .
+            '<circle class="tk-mark__dot" cx="38" cy="44" r="4.5" />',
+
+        // Yantra: the downward triangle of Shakti, seated in its circle.
+        'shakta' =>
+            '<circle class="tk-mark__a" cx="38" cy="44" r="29" />' .
+            '<path class="tk-mark__a" d="M13 32 L63 32 L38 73 Z" />' .
+            '<path class="tk-mark__b" d="M23 40 L53 40 L38 64 Z" />' .
+            '<circle class="tk-mark__dot" cx="38" cy="47" r="4.5" />',
+    );
+
+    if (!isset($marks[$slug])) {
+        return;
+    }
+
+    printf(
+        '<svg class="tk-mark" viewBox="0 0 76 88" width="76" height="88" fill="none" aria-hidden="true" focusable="false">%s</svg>',
+        $marks[$slug]
+    );
+}
