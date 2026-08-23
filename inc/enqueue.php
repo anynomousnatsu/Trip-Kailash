@@ -30,7 +30,8 @@ function trip_kailash_enqueue_assets() {
         'trip-kailash-fonts'      => array( 'fonts.css', array() ),
         'trip-kailash-variables'  => array( 'variables.css', array( 'trip-kailash-fonts' ) ),
         'trip-kailash-base'       => array( 'base.css', array( 'trip-kailash-variables' ) ),
-        'trip-kailash-components' => array( 'components.css', array( 'trip-kailash-base' ) ),
+        'trip-kailash-motion'     => array( 'motion.css', array( 'trip-kailash-base' ) ),
+        'trip-kailash-components' => array( 'components.css', array( 'trip-kailash-motion' ) ),
         'trip-kailash-header'     => array( 'header.css', array( 'trip-kailash-components' ) ),
         'trip-kailash-footer'     => array( 'footer.css', array( 'trip-kailash-header' ) ),
         // Elementor overrides must win the cascade, so they load last.
@@ -72,6 +73,16 @@ function trip_kailash_enqueue_assets() {
     wp_enqueue_script(
         'trip-kailash-overlay',
         TRIP_KAILASH_URI . '/assets/js/overlay.js',
+        array(),
+        TRIP_KAILASH_VERSION,
+        true
+    );
+
+    // Reveal and motion driver. Deferred: it only reads the DOM and arms
+    // observers, so nothing it does needs to block parsing.
+    wp_enqueue_script(
+        'trip-kailash-reveal',
+        TRIP_KAILASH_URI . '/assets/js/reveal.js',
         array(),
         TRIP_KAILASH_VERSION,
         true

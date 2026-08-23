@@ -332,3 +332,116 @@ body.tk-scroll-locked {
   position: fixed;
   width: 100%;
 }
+
+/* ============================================================================
+   THE ENVIRONMENT LAYER
+   Appended last on purpose, so it wins over the resets above without any
+   specificity escalation.
+
+   One fixed ground behind everything, so scrolling reads as moving through a
+   place rather than past a stack of sections. Three washes plus paper grain,
+   all background-attachment: fixed so none of it repaints on scroll.
+   ============================================================================ */
+
+body {
+  background-color: var(--bg-page);
+  background-image:
+    /* brass bloom, top centre */
+    radial-gradient(120% 66% at 50% 0%,
+      rgba(224, 196, 137, .34) 0%, rgba(224, 196, 137, 0) 62%),
+    /* vermilion wash, upper right, at a whisper */
+    radial-gradient(90% 54% at 88% 32%,
+      rgba(200, 89, 58, .085) 0%, rgba(200, 89, 58, 0) 60%),
+    /* brass wash, lower left */
+    radial-gradient(82% 58% at 6% 76%,
+      rgba(184, 134, 11, .105) 0%, rgba(184, 134, 11, 0) 62%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  color: var(--text-body);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+}
+
+/* Paper grain. Fixed, so it never moves with the content, and pointer-events
+   none so it can never eat a click. Sits under everything the theme draws,
+   which all establishes its own stacking context above z-index 0. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: .5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.055'/%3E%3C/svg%3E");
+}
+
+/* Content rides above the grain. */
+.tk-header,
+#page,
+.site-main,
+main,
+footer {
+  position: relative;
+  z-index: 1;
+}
+
+/* On the deep sections the ground inverts: warm near-black, brass ornament.
+   Never navy, never pure black. */
+.tk-deep {
+  background-color: var(--surface-deep);
+  color: var(--text-on-deep);
+}
+
+.tk-deep h1,
+.tk-deep h2,
+.tk-deep h3,
+.tk-deep h4 { color: var(--sand-100); }
+
+.tk-deep a { color: var(--brass-300); }
+
+/* overflow-x: clip on BOTH html and body. hidden is declared earlier in this
+   file as the fallback; clip is what actually stops a stray decoration or an
+   anchor link from leaving the whole page shifted sideways, because hidden
+   alone still lets code scroll the page. */
+html,
+body {
+  overflow-x: clip;
+}
+
+/* Display face carries headings only. It renders essentially as capitals and
+   is slower to read, so every paragraph stays in the body face. */
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  color: var(--text-heading);
+  line-height: var(--leading-tight);
+  text-wrap: balance;
+}
+
+h1 { font-weight: 900; }
+h2, h3, h4 { font-weight: 700; }
+
+/* Figures line up in columns wherever they are compared. */
+.tk-num { font-variant-numeric: tabular-nums; }
+
+/* Focus is brass, and visible. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: none;
+  box-shadow: var(--ring-focus);
+  border-radius: var(--r-sm);
+}
+
+/* Touch targets, added without changing layout. Declaring a display type
+   without re-declaring alignment is what left button labels flush left and
+   shrank full-width rows to their text. */
+@media (pointer: coarse) {
+  .tk-btn,
+  .tk-btn-ghost,
+  button,
+  [type="submit"] {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

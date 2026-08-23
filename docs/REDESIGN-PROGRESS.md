@@ -15,9 +15,9 @@ Status key: `[ ]` not started · `[~]` in progress · `[x]` done and committed
       Files: `assets/css/variables.css`
 - [x] **1.2** Self-hosted fonts. Cinzel 700/900, Karla 400/500, Noto Serif Devanagari 500/700.
       Files: `assets/fonts/`, `assets/css/fonts.css`
-- [ ] **1.3** Motion system. Easing tokens, reveal states, two-way reduced motion.
+- [x] **1.3** Motion system. Easing tokens, reveal states, two-way reduced motion.
       Files: `assets/css/motion.css`
-- [ ] **1.4** Reveal JS. IntersectionObserver, staggered children, retired delays, tab pause.
+- [x] **1.4** Reveal JS. IntersectionObserver, staggered children, retired delays, tab pause.
       Files: `assets/js/reveal.js`
 - [ ] **1.5** Environment layer. Fixed brass bloom, vermilion wash, feTurbulence grain.
       Files: `assets/css/base.css`
