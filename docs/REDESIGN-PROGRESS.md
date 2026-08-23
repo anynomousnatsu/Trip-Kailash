@@ -59,7 +59,7 @@ Status key: `[ ]` not started · `[~]` in progress · `[x]` done and committed
 
 - [x] **3.1** `front-page.php` skeleton and section scaffolding.
 - [x] **3.2** Hero markup, caption bands, designed static hero.
-- [ ] **3.3** `hero-scrub.js`: Blob fetch with ring, lerp, gated seeks, five live gates.
+- [x] **3.3** `hero-scrub.js`: Blob fetch with ring, lerp, gated seeks, five live gates.
 - [ ] **3.4** Hero legibility: four-layer scrim system, worst-frame tuning.
 - [ ] **3.5** Tradition doors with three drawn geometries.
 - [ ] **3.6** The parikrama gallery, pinned horizontal with centre-proximity falloff.

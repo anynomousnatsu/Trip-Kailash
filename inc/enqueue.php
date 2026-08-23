@@ -85,6 +85,19 @@ function trip_kailash_enqueue_assets() {
             TRIP_KAILASH_VERSION,
             'all'
         );
+
+        /*
+         * The scrub engine. It exits immediately unless the hero markup says
+         * a clip is actually configured, so it costs nothing on a homepage
+         * that is running the still.
+         */
+        wp_enqueue_script(
+            'trip-kailash-hero-scrub',
+            TRIP_KAILASH_URI . '/assets/js/hero-scrub.js',
+            array(),
+            TRIP_KAILASH_VERSION,
+            true
+        );
     }
 
     // Enqueue JavaScript files
