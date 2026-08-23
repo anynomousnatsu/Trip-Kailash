@@ -251,6 +251,27 @@ add_filter('script_loader_dependencies', 'tk_optimize_script_deps', 10, 2);
  *                               traffic, which is where the real win is
  *   stale-while-revalidate   -> the proxy serves the cached copy instantly
  *                               and refreshes it in the background
+ *
+ * The stale window used to be a full DAY_IN_SECONDS, and that is a trap of
+ * exactly the same shape as the max-age it replaced.
+ *
+ * stale-while-revalidate is honoured by browsers on navigation, not only by
+ * CDNs. A day-long window means a returning visitor is served the copy their
+ * browser already had, for up to twenty four hours, with the refresh
+ * happening silently behind it. Content edits still appeared, because those
+ * change the HTML the background fetch returns. STRUCTURAL changes did not:
+ * deploy a new template and a returning visitor keeps getting the old page,
+ * while every stylesheet on it updates normally, because assets are fetched
+ * by URL and the version string had changed.
+ *
+ * That failure looks exactly like "the colours and fonts changed and nothing
+ * else did", which is the least diagnosable symptom possible: the site is
+ * correct, the deploy is correct, and every hard-refresh a developer does to
+ * check it returns the right page.
+ *
+ * Sixty seconds keeps the point of the directive, which is absorbing a burst
+ * without a latency spike at expiry, and costs at most a minute of staleness
+ * after a deploy.
  */
 function tk_add_cache_headers()
 {
@@ -273,7 +294,7 @@ function tk_add_cache_headers()
     header(sprintf(
         'Cache-Control: public, max-age=0, s-maxage=%d, stale-while-revalidate=%d',
         $shared_max_age,
-        DAY_IN_SECONDS
+        MINUTE_IN_SECONDS
     ));
     header('Vary: Accept-Encoding');
 }
