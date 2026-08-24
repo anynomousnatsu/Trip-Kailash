@@ -106,14 +106,33 @@
     });
   }
 
+  /* Reduced motion gets SOFT motion, not no motion.
+   *
+   * Pinning everything to its final state was more than the setting asks for.
+   * What it is about is vestibular triggers: parallax, scroll-jacking, large
+   * travel. A short opacity fade is none of those, and removing it made the
+   * whole page look inert to anyone who has the OS toggle on, which is a lot
+   * of people who never chose it deliberately.
+   *
+   * So the reveal observer still runs and things still arrive. They arrive by
+   * becoming visible instead of by moving. The looping whispers stay off,
+   * because a glow that never settles is the actual thing being asked about.
+   */
   function applyMotion() {
-    if (REDUCE.matches) {
-      pinToFinalStates();
-      return;
-    }
+    disarm();
+
     document.body.classList.remove('tk-motion-off');
+    document.body.classList.toggle('tk-motion-soft', REDUCE.matches);
+
     armReveal();
-    armNear();
+
+    if (!REDUCE.matches) {
+      armNear();
+    } else {
+      each(document.querySelectorAll('.tk-glow, .tk-float'), function (el) {
+        el.classList.remove('is-near');
+      });
+    }
   }
 
   /* Older Safari only has the deprecated addListener. */

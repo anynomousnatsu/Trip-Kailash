@@ -218,3 +218,72 @@ body.tk-paused *::after {
 .tk-motion-off .tk-rule { transform: scaleX(1); }
 .tk-motion-off .tk-rule::before { transform: rotate(45deg) scale(1); }
 .tk-motion-off .tk-glow::after { opacity: .46; }
+
+/* ============================================================================
+   SOFT MOTION
+
+   Reduced motion used to mean NO motion here: every reveal was pinned to its
+   final state, so the page arrived fully assembled and nothing ever moved.
+   That is more than the setting asks for, and it makes the site look inert to
+   anyone who has the OS toggle on without realising what it does.
+
+   What the setting is actually about is vestibular triggers: parallax,
+   scroll-jacking, large travel, anything that moves while the reader is
+   trying to hold still. A short opacity fade is none of those.
+
+   So reduced motion now gets a plain crossfade. No translate, no scale, no
+   pinning, no looping. Things still arrive, they just arrive by becoming
+   visible rather than by moving.
+
+   Specificity note: the media query above sets the final states, which is the
+   correct no-JavaScript safety net. These rules carry a body class as well,
+   so they win when reveal.js is running and lose when it is not.
+   ========================================================================== */
+
+.tk-motion-soft .tk-rv,
+.tk-motion-soft .tk-rv--left,
+.tk-motion-soft .tk-rv--right,
+.tk-motion-soft .tk-rv--scale {
+  opacity: 0;
+  transform: none;
+  transition: opacity 300ms var(--ease, ease);
+}
+
+.tk-motion-soft .tk-rv.is-in,
+.tk-motion-soft .tk-rv--left.is-in,
+.tk-motion-soft .tk-rv--right.is-in,
+.tk-motion-soft .tk-rv--scale.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* The brass rule fades rather than drawing. Its width is already correct, so
+   nothing travels. */
+.tk-motion-soft .tk-rule {
+  opacity: 0;
+  transform: scaleX(1);
+  transition: opacity 300ms var(--ease, ease);
+}
+
+.tk-motion-soft .tk-rule.is-in { opacity: 1; }
+.tk-motion-soft .tk-rule::before { transform: rotate(45deg) scale(1); }
+
+/* Staggered children still stagger, because a 60ms offset between siblings is
+   sequencing rather than movement. */
+.tk-motion-soft .tk-stagger > * {
+  opacity: 0;
+  transform: none;
+  transition: opacity 300ms var(--ease, ease);
+}
+
+.tk-motion-soft .tk-stagger.is-in > * { opacity: 1; }
+
+/* Loops are the one thing that stays off. A glow or a float that never
+   settles is exactly what the setting exists to stop. */
+.tk-motion-soft .tk-glow::after,
+.tk-motion-soft .tk-float {
+  animation: none !important;
+  transform: none !important;
+}
+
+.tk-motion-soft .tk-glow::after { opacity: .46; }
