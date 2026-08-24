@@ -1,2 +1,5 @@
 # gstack tooling artifacts (browse logs, audit traces)
 .gstack/
+
+# graphify knowledge graph build artifacts (regenerable, local-only)
+graphify-out/
