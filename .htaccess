@@ -1,0 +1,20 @@
+# Nothing in this theme that is for BUILDING it should be readable over the web.
+#
+# The theme repository is also the deploy artifact: whatever is in the folder
+# is served. That is fine for PHP and assets and wrong for everything else.
+# docs/design-package.md alone carries the competitive research, the pricing
+# argument and the positioning, and it was returning HTTP 200 to anyone who
+# guessed the path.
+#
+# Directory-level rules live in docs/.htaccess and bin/.htaccess so they hold
+# wherever the theme is installed. This file covers loose files by extension.
+
+<FilesMatch "\.(md|sh|py|ya?ml|lock|dist|example)$">
+  Require all denied
+</FilesMatch>
+
+# Dotfiles. The host already blocks these, but a host is a setting and this
+# is a fact about the theme.
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>
