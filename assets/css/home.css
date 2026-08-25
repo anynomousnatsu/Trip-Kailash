@@ -147,29 +147,16 @@
 
 .tk-hero__media { position: absolute; inset: 0; }
 
+/* Tuned to where the peak actually sits in the bundled photograph: about
+   62% across, its lit face spanning roughly 31% to 50% down. Anchoring the
+   crop there keeps the summit in frame instead of a generic "center", which
+   would cut the top off on a short window and lose the light entirely.
+   A different photograph needs this re-tuned to its own subject. */
 .tk-hero__img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 42%;
-}
-
-/* Drawn in the brand colours until a photograph is set, so the layout can be
-   judged now and the image dropped in later without anything moving. Bark at
-   the horizon, terracotta through the middle, brass where the sun sits. */
-.tk-hero__placeholder {
-  display: block;
-  width: 100%;
-  height: 100%;
-  background:
-    radial-gradient(80% 52% at 62% 68%, rgba(184, 134, 11, .55) 0%, rgba(184, 134, 11, 0) 62%),
-    radial-gradient(120% 70% at 50% 96%, rgba(30, 16, 6, .96) 0%, rgba(30, 16, 6, 0) 70%),
-    linear-gradient(178deg,
-      #2B1A0C 0%,
-      #5A3418 26%,
-      #A8452C 52%,
-      #C9781F 72%,
-      #1E1006 100%);
+  object-position: 64% 40%;
 }
 
 /* Warm, never neutral. A grey veil over a sunset kills the sunset. Weighted

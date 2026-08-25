@@ -21,8 +21,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-$tk_image_id = (int) get_theme_mod('tk_hero_poster_id', 0);
-$tk_viewing  = trim((string) get_theme_mod('tk_hero_viewing', __("Lord Shiva's home", 'trip-kailash')));
+$tk_image_id    = (int) get_theme_mod('tk_hero_poster_id', 0);
+$tk_bundled_url = TRIP_KAILASH_URI . '/assets/images/mt-kailash-hero.jpg';
+$tk_viewing     = trim((string) get_theme_mod('tk_hero_viewing', __("Lord Shiva's home", 'trip-kailash')));
 ?>
 
 <section class="tk-hero" id="hero" aria-labelledby="tk-hero-title">
@@ -38,7 +39,8 @@ $tk_viewing  = trim((string) get_theme_mod('tk_hero_viewing', __("Lord Shiva's h
 			));
 			?>
 		<?php else : ?>
-			<span class="tk-hero__placeholder"></span>
+			<img class="tk-hero__img" src="<?php echo esc_url($tk_bundled_url); ?>"
+				fetchpriority="high" decoding="async" alt="">
 		<?php endif; ?>
 	</div>
 
