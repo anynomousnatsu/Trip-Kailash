@@ -1,0 +1,58 @@
+name: Deploy theme
+
+# A push moves code to GitHub. It does not move code to the server.
+# This is the part that does, over FTPS.
+#
+# It runs on a manual click by default, and on a push to master. The redesign
+# branch is deliberately NOT on that list: we iterate section by section
+# there, and nobody wants every work-in-progress commit landing on the live
+# site. Use "Run workflow" to push a branch live when it is ready.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Refuse to ship a theme that will white-screen. A WordPress theme has
+      # no build step, so a parse error is only discovered by a visitor.
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+
+      - name: Lint every PHP file
+        run: bash bin/lint-php.sh
+
+      - name: Check the copy gate
+        run: bash bin/copy-gate.sh
+
+      - name: Check the HTML cache window
+        run: python3 bin/check-cache-headers.py
+
+      - name: Upload to the theme directory
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          server-dir: ${{ secrets.FTP_THEME_PATH }}
+          # Everything that is for building the theme rather than running it.
+          # docs/ and bin/ are read by people and CI, never by WordPress, and
+          # shipping them puts our own notes on a public server.
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            docs/**
+            bin/**
+            graphify-out/**
+            .github/**
+            *.md
