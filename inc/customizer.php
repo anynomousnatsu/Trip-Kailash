@@ -129,7 +129,7 @@ function tk_customize_register_more($wp_customize)
     $wp_customize->add_section('tk_hero', array(
         'title'       => __('Homepage hero', 'trip-kailash'),
         'panel'       => 'tk_panel',
-        'description' => __('With no clip set, the hero is a composed still for everyone, which is the honest state until footage exists. Add a clip and laptops get the scroll-driven film while phones keep the still.', 'trip-kailash'),
+        'description' => __('One photograph, the claim, and one way in. Until an image is set the hero paints a sunset in the brand colours, so the layout is judged now and the photograph drops in later without anything moving.', 'trip-kailash'),
     ));
 
     $wp_customize->add_setting('tk_hero_poster_id', array(
@@ -139,22 +139,27 @@ function tk_customize_register_more($wp_customize)
 
     $wp_customize->add_control(new WP_Customize_Media_Control($wp_customize, 'tk_hero_poster_id', array(
         'label'       => __('Hero image', 'trip-kailash'),
-        'description' => __('Shown immediately, and shown instead of the video on phones. Use the first frame of the clip if there is one.', 'trip-kailash'),
+        'description' => __('The hero photograph. Landscape, and composed so the subject sits right of centre, since the words occupy the left.', 'trip-kailash'),
         'section'     => 'tk_hero',
         'mime_type'   => 'image',
     )));
 
-    $wp_customize->add_setting('tk_hero_video_id', array(
-        'default'           => 0,
-        'sanitize_callback' => 'absint',
+    /*
+     * The caption under the hero. It names what is in the photograph, so it
+     * has to change when the photograph does, which is why it is a setting
+     * rather than a line of markup somebody has to remember to go and edit.
+     */
+    $wp_customize->add_setting('tk_hero_viewing', array(
+        'default'           => "Lord Shiva's home",
+        'sanitize_callback' => 'sanitize_text_field',
     ));
 
-    $wp_customize->add_control(new WP_Customize_Media_Control($wp_customize, 'tk_hero_video_id', array(
-        'label'       => __('Hero clip', 'trip-kailash'),
-        'description' => __('Five to eight seconds, ending on a composed resting frame. Re-encode it with a short keyframe interval first or scrubbing will stutter: see docs/design-package.md section 8.1.', 'trip-kailash'),
+    $wp_customize->add_control('tk_hero_viewing', array(
+        'label'       => __('Currently viewing', 'trip-kailash'),
+        'description' => __('Names the place in the hero photograph. Shown as "Currently viewing: ...". Leave empty to hide the line.', 'trip-kailash'),
         'section'     => 'tk_hero',
-        'mime_type'   => 'video',
-    )));
+        'type'        => 'text',
+    ));
 
     $wp_customize->add_setting('tk_founder_portrait_id', array(
         'default'           => 0,
